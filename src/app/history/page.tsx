@@ -113,7 +113,7 @@ export default function HistoryPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="總推送次數"
-            value={stats?.total_pushes || 0}
+            value={statsLoading ? "載入中..." : (stats?.total_pushes || 0)}
             icon={TrendingUp}
             description="累計發送的新聞推送"
             status={stats?.total_pushes ? "active" : "inactive"}
@@ -121,11 +121,11 @@ export default function HistoryPage() {
           
           <StatCard
             title="近 7 天推送"
-            value={stats?.recent_pushes_7_days || 0}
+            value={statsLoading ? "載入中..." : (stats?.recent_pushes_7_days || 0)}
             icon={Clock}
             description="最近一週的推送活動"
             trend={
-              stats?.recent_pushes_7_days && stats?.total_pushes 
+              !statsLoading && stats?.recent_pushes_7_days && stats?.total_pushes 
                 ? {
                     value: Math.round((stats.recent_pushes_7_days / stats.total_pushes) * 100),
                     label: "佔總數比例",
@@ -140,9 +140,22 @@ export default function HistoryPage() {
             value={stats?.most_active_day?.[1] || 0}
             icon={Calendar}
             description={
-              stats?.most_active_day?.[0] 
-                ? `${format(new Date(stats.most_active_day[0]), 'MM/dd')} 當日推送`
-                : "暫無數據"
+              statsLoading 
+                ? "載入中..." 
+                : stats?.most_active_day?.[0] 
+                  ? (() => {
+                      try {
+                        const date = new Date(stats.most_active_day[0])
+                        if (isNaN(date.getTime())) {
+                          return "日期格式錯誤"
+                        }
+                        return `${format(date, 'MM/dd')} 當日推送`
+                      } catch (error) {
+                        console.error('Date formatting error:', error)
+                        return "日期解析失敗"
+                      }
+                    })()
+                  : "暫無數據"
             }
           />
           
@@ -239,7 +252,18 @@ export default function HistoryPage() {
                               {item.news_articles?.published_date && (
                                 <span className="flex items-center">
                                   <Calendar className="h-3 w-3 mr-1" />
-                                  發布於 {format(new Date(item.news_articles.published_date), 'MM/dd HH:mm')}
+                                  發布於 {(() => {
+                                    try {
+                                      const date = new Date(item.news_articles.published_date)
+                                      if (isNaN(date.getTime())) {
+                                        return "日期錯誤"
+                                      }
+                                      return format(date, 'MM/dd HH:mm')
+                                    } catch (error) {
+                                      console.error('Published date formatting error:', error)
+                                      return "日期錯誤"
+                                    }
+                                  })()}
                                 </span>
                               )}
                             </div>
