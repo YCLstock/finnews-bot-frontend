@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
@@ -13,7 +13,11 @@ export const metadata: Metadata = {
   description: "自動化財經新聞摘要推送系統 - 透過 AI 摘要和智能推送頻率控制，讓您不錯過重要財經資訊。",
   keywords: ["財經新聞", "AI 摘要", "自動推送", "Discord", "投資資訊"],
   authors: [{ name: "FinNews-Bot Team" }],
-  viewport: "width=device-width, initial-scale=1",
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({

@@ -40,6 +40,7 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
   const { 
     subscription, 
     frequencyOptions,
+    frequencyOptionsLoading,
     createSubscription, 
     updateSubscription,
     loading 
@@ -340,15 +341,34 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
           </div>
 
           {/* 頻率說明 */}
-          {frequencyOptions && (
+          {frequencyOptionsLoading ? (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>載入頻率選項中...</strong>
+              </AlertDescription>
+            </Alert>
+          ) : frequencyOptions && frequencyOptions.daily && frequencyOptions.twice && frequencyOptions.thrice ? (
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 <strong>推送頻率說明：</strong>
                 <ul className="mt-2 space-y-1 text-sm">
-                  <li>• 每日一次：{frequencyOptions.daily.description}</li>
-                  <li>• 每日兩次：{frequencyOptions.twice.description}</li>
-                  <li>• 每日三次：{frequencyOptions.thrice.description}</li>
+                  <li>• 每日一次：{frequencyOptions.daily?.description || '每日 08:00 推送最新財經摘要'}</li>
+                  <li>• 每日兩次：{frequencyOptions.twice?.description || '每日 08:00, 20:00 推送財經摘要'}</li>
+                  <li>• 每日三次：{frequencyOptions.thrice?.description || '每日 08:00, 13:00, 20:00 推送財經摘要'}</li>
+                </ul>
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>推送頻率說明：</strong>
+                <ul className="mt-2 space-y-1 text-sm">
+                  <li>• 每日一次：每日 08:00 推送最新財經摘要</li>
+                  <li>• 每日兩次：每日 08:00, 20:00 推送財經摘要</li>
+                  <li>• 每日三次：每日 08:00, 13:00, 20:00 推送財經摘要</li>
                 </ul>
               </AlertDescription>
             </Alert>

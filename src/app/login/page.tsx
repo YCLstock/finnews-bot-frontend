@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,7 +8,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { AlertCircle, TrendingUp } from 'lucide-react'
 
-export default function LoginPage() {
+// 將使用 useSearchParams 的邏輯分離到單獨的組件
+function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { signInWithGoogle, loading, isAuthenticated } = useAuth()
@@ -144,5 +145,26 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Loading fallback 組件
+function LoginLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-muted-foreground">載入中...</p>
+      </div>
+    </div>
+  )
+}
+
+// 主要的登入頁面組件
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginLoading />}>
+      <LoginContent />
+    </Suspense>
   )
 } 
