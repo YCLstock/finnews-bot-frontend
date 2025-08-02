@@ -10,8 +10,7 @@ import {
   Target, 
   TrendingUp, 
   AlertCircle, 
-  X, 
-  Settings,
+  X,
   Sparkles,
   BarChart3
 } from 'lucide-react'
@@ -28,14 +27,12 @@ export function OptimizationBanner({
   className 
 }: OptimizationBannerProps) {
   const { 
-    guidanceStatus, 
     needsGuidance, 
     isGuidanceCompleted, 
     focusScore 
   } = useGuidance()
 
   const [isVisible, setIsVisible] = useState(false)
-  const [showOptimization, setShowOptimization] = useState(false)
 
   useEffect(() => {
     // 判斷是否需要顯示優化橫幅
@@ -47,7 +44,6 @@ export function OptimizationBanner({
   }, [needsGuidance, isGuidanceCompleted, focusScore])
 
   const handleStartOptimization = () => {
-    setShowOptimization(true)
     onStartOptimization?.()
   }
 

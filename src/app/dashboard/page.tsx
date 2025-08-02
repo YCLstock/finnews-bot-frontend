@@ -21,8 +21,7 @@ import {
   Activity,
   ExternalLink,
   RefreshCw,
-  Plus,
-  Target
+  Plus
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
@@ -36,7 +35,7 @@ export default function DashboardPage() {
     hasSubscription,
     toggleSubscription 
   } = useSubscription()
-  const { focusScore, needsGuidance } = useGuidance()
+  const { } = useGuidance()
 
   const [stats, setStats] = useState<PushStatsResponse | null>(null)
   const [recentHistory, setRecentHistory] = useState<PushHistoryResponse[]>([])

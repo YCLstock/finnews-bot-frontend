@@ -14,7 +14,6 @@ import {
   CheckCircle, 
   BarChart3, 
   Target,
-  History,
   Settings
 } from 'lucide-react'
 
