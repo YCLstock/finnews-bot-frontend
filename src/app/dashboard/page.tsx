@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ProtectedLayout } from '@/components/layout/ProtectedLayout'
 import { StatCard } from '@/components/ui/stat-card'
+import { OptimizationBanner } from '@/components/guidance/OptimizationBanner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/hooks/useAuth'
 import { useSubscription } from '@/hooks/useSubscription'
+import { useGuidance } from '@/hooks/useGuidance'
 import { apiClient, ApiError } from '@/lib/api-client'
 import type { PushHistoryResponse, PushStatsResponse } from '@/lib/api-client'
 import { 
@@ -19,18 +21,22 @@ import {
   Activity,
   ExternalLink,
   RefreshCw,
-  Plus
+  Plus,
+  Target
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 
 export default function DashboardPage() {
+  const router = useRouter()
   const { user } = useAuth()
   const { 
     subscription, 
     hasSubscription,
     toggleSubscription 
   } = useSubscription()
+  const { focusScore, needsGuidance } = useGuidance()
 
   const [stats, setStats] = useState<PushStatsResponse | null>(null)
   const [recentHistory, setRecentHistory] = useState<PushHistoryResponse[]>([])
@@ -114,6 +120,12 @@ export default function DashboardPage() {
             </Button>
           </div>
         </div>
+
+        {/* 引導橫幅 */}
+        <OptimizationBanner 
+          onStartOptimization={() => router.push('/guidance')}
+          className="mb-6"
+        />
 
         {/* 訂閱狀態區域 */}
         {!hasSubscription ? (

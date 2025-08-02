@@ -16,7 +16,8 @@ import {
   TrendingUp,
   Menu,
   X,
-  User
+  User,
+  Target
 } from 'lucide-react'
 
 const navigation = [
@@ -25,6 +26,12 @@ const navigation = [
     href: '/dashboard',
     icon: LayoutDashboard,
     description: '系統概覽和快速操作'
+  },
+  {
+    name: '個人化設定',
+    href: '/guidance',
+    icon: Target,
+    description: '用戶引導和關鍵字優化'
   },
   {
     name: '訂閱管理',
