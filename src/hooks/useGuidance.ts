@@ -5,11 +5,7 @@ import { apiClient } from '@/lib/api-client-guidance'
 import type { 
   GuidanceStatusResponse,
   InvestmentFocusArea,
-  OnboardingStartResponse,
-  InvestmentFocusResponse,
-  KeywordAnalysisResponse,
-  OnboardingFinalizeResponse,
-  OptimizationSuggestionsResponse
+  KeywordAnalysisResponse
 } from '@/lib/api-client-guidance'
 import { toast } from 'sonner'
 
@@ -60,8 +56,8 @@ export function useGuidance() {
         error: null
       }))
       return status
-    } catch (error: any) {
-      const errorMessage = error?.message || '獲取引導狀態失敗'
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '獲取引導狀態失敗'
       setState(prev => ({
         ...prev,
         status: null,
@@ -82,7 +78,7 @@ export function useGuidance() {
         investmentAreas: response.data
       }))
       return response.data
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch investment areas:', error)
       toast.error('獲取投資領域失敗')
       return []
@@ -118,8 +114,8 @@ export function useGuidance() {
       } else {
         throw new Error('引導啟動失敗')
       }
-    } catch (error: any) {
-      const errorMessage = error?.message || '啟動引導流程失敗'
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '啟動引導流程失敗'
       setState(prev => ({ ...prev, loading: false, error: errorMessage }))
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
@@ -151,8 +147,8 @@ export function useGuidance() {
       } else {
         throw new Error('投資領域選擇失敗')
       }
-    } catch (error: any) {
-      const errorMessage = error?.message || '投資領域選擇失敗'
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '投資領域選擇失敗'
       setState(prev => ({ ...prev, loading: false, error: errorMessage }))
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
@@ -178,8 +174,8 @@ export function useGuidance() {
       } else {
         throw new Error('關鍵字分析失敗')
       }
-    } catch (error: any) {
-      const errorMessage = error?.message || '關鍵字分析失敗'
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '關鍵字分析失敗'
       setState(prev => ({ ...prev, loading: false, error: errorMessage }))
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
@@ -216,8 +212,8 @@ export function useGuidance() {
       } else {
         throw new Error('完成引導失敗')
       }
-    } catch (error: any) {
-      const errorMessage = error?.message || '完成引導失敗'
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '完成引導失敗'
       setState(prev => ({ ...prev, loading: false, error: errorMessage }))
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
@@ -229,8 +225,8 @@ export function useGuidance() {
     try {
       const result = await apiClient.guidance.getOptimizationSuggestions()
       return { success: true, data: result }
-    } catch (error: any) {
-      const errorMessage = error?.message || '獲取優化建議失敗'
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '獲取優化建議失敗'
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
     }
@@ -241,8 +237,8 @@ export function useGuidance() {
     try {
       const result = await apiClient.guidance.getFocusScore()
       return { success: true, data: result.data }
-    } catch (error: any) {
-      const errorMessage = error?.message || '獲取聚焦度失敗'
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '獲取聚焦度失敗'
       console.error('Failed to get focus score:', error)
       return { success: false, error: errorMessage }
     }
@@ -258,8 +254,8 @@ export function useGuidance() {
       } else {
         throw new Error('優化分析失敗')
       }
-    } catch (error: any) {
-      const errorMessage = error?.message || '優化分析失敗'
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : '優化分析失敗'
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
     }

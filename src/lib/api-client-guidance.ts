@@ -113,8 +113,8 @@ interface GuidanceHistoryResponse {
       id: number
       guidance_type: string
       focus_score?: number
-      clustering_result?: any
-      recommendations?: any
+      clustering_result?: Record<string, unknown>
+      recommendations?: Record<string, unknown>
       keywords_analyzed: string[]
       topics_mapped: string[]
       created_at: string
@@ -174,7 +174,7 @@ const guidanceApi = {
 
   // 為現有用戶提供優化
   optimizeExistingUser: () =>
-    apiClient.request<{ success: boolean; data: any }>('/guidance/optimize-existing-user', {
+    apiClient.request<{ success: boolean; data: Record<string, unknown> }>('/guidance/optimize-existing-user', {
       method: 'POST'
     })
 }
