@@ -55,6 +55,7 @@ interface OnboardingFlow {
 
 export function useGuidance() {
   const { session, loading: authLoading, isAuthenticated } = useAuth()
+  const [isInitialized, setIsInitialized] = useState(false)
   
   const [state, setState] = useState<GuidanceState>({
     status: null,
@@ -311,13 +312,20 @@ export function useGuidance() {
     if (!isAuthenticated) {
       console.log('⚠️ Not authenticated, skipping guidance initialization')
       setState(prev => ({ ...prev, loading: false, error: '需要登入' }))
+      setIsInitialized(false)
+      return
+    }
+    
+    if (isInitialized) {
+      console.log('🔄 Already initialized, skipping...')
       return
     }
     
     console.log('🚀 Auth complete, initializing guidance...')
+    setIsInitialized(true)
     fetchGuidanceStatus()
     fetchInvestmentAreas()
-  }, [authLoading, isAuthenticated, fetchGuidanceStatus, fetchInvestmentAreas])
+  }, [authLoading, isAuthenticated, isInitialized, fetchGuidanceStatus, fetchInvestmentAreas])
 
   return {
     // 狀態
