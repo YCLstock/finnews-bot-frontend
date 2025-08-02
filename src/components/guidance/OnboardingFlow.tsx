@@ -9,13 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Progress } from '@/components/ui/progress'
 import { useGuidance } from '@/hooks/useGuidance'
-interface InvestmentFocusArea {
-  code: string
-  name_zh: string
-  name_en: string
-  description: string
-  sample_keywords: string[]
-}
+import type { InvestmentFocusArea } from '@/hooks/useGuidance'
 import { 
   ChevronRight, 
   ChevronLeft, 

@@ -331,3 +331,6 @@ export function useGuidance() {
     }
   }
 }
+
+// 導出型別供其他文件使用
+export type { InvestmentFocusArea, KeywordAnalysisResponse }
