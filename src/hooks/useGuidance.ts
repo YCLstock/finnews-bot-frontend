@@ -74,14 +74,8 @@ export function useGuidance() {
     selectedTopics: []
   })
 
-  // 獲取引導狀態
+  // 獲取引導狀態 - 不含認證檢查邏輯
   const fetchGuidanceStatus = useCallback(async () => {
-    if (!isAuthenticated) {
-      console.log('⚠️ Not authenticated, skipping guidance status fetch')
-      setState(prev => ({ ...prev, loading: false, error: '需要登入' }))
-      return null
-    }
-    
     try {
       console.log('📊 Fetching guidance status...')
       setState(prev => ({ ...prev, loading: true, error: null }))
@@ -105,7 +99,7 @@ export function useGuidance() {
       console.error('Failed to fetch guidance status:', error)
       return null
     }
-  }, [isAuthenticated])
+  }, [])
 
   // 獲取投資領域選項
   const fetchInvestmentAreas = useCallback(async () => {
@@ -243,7 +237,7 @@ export function useGuidance() {
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
     }
-  }, [isAuthenticated, fetchGuidanceStatus])
+  }, [fetchGuidanceStatus])
 
   // 獲取優化建議
   const getOptimizationSuggestions = useCallback(async () => {
