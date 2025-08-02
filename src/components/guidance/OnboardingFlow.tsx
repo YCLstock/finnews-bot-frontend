@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Progress } from '@/components/ui/progress'
 import { useGuidance } from '@/hooks/useGuidance'
-import type { InvestmentFocusArea } from '@/hooks/useGuidance'
 import { 
   ChevronRight, 
   ChevronLeft, 
@@ -448,7 +447,7 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
       </CardHeader>
       
       <CardContent>
-        {(currentStep === 'none' || currentStep === 'investment_focus_selection') && renderWelcomeStep()}
+        {currentStep === 'none' && renderWelcomeStep()}
         {currentStep === 'investment_focus_selection' && renderInvestmentFocusStep()}
         {currentStep === 'keyword_customization' && renderKeywordCustomizationStep()}
         {currentStep === 'analysis' && renderAnalysisStep()}

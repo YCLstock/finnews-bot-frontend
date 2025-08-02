@@ -43,7 +43,7 @@ export default function HistoryPage() {
   useEffect(() => {
     fetchHistory(20)
     fetchStats()
-  }, []) // 移除依賴，只在組件掛載時執行一次
+  }, [fetchHistory, fetchStats])
 
   // 刷新數據
   const handleRefresh = async () => {
