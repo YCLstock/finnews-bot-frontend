@@ -54,7 +54,7 @@ interface OnboardingFlow {
 }
 
 export function useGuidance() {
-  const { session, loading: authLoading, isAuthenticated } = useAuth()
+  const {loading: authLoading, isAuthenticated } = useAuth()
   const [isInitialized, setIsInitialized] = useState(false)
   
   const [state, setState] = useState<GuidanceState>({
