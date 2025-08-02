@@ -95,6 +95,71 @@ interface FrequencyOptionsResponse {
   }
 }
 
+// Tags API 相關類型
+interface Tag {
+  id: number
+  tag_code: string
+  tag_name_zh: string
+  tag_name_en?: string
+  is_active: boolean
+  priority: number
+}
+
+interface TagCategory {
+  category: string
+  tags: Tag[]
+  count: number
+}
+
+interface TagPreferences {
+  user_id: string
+  subscribed_tags: string[]
+  excluded_tags: string[]
+  last_updated: string
+}
+
+interface TagStatsResponse {
+  total_tags: number
+  active_tags: number
+  user_subscribed_tags: number
+  recent_matches: number
+}
+
+interface KeywordConversionPreview {
+  original_keywords: string[]
+  matched_tags: Tag[]
+  unmatched_keywords: string[]
+  recommendations: string[]
+}
+
+// Guidance API 擴展類型  
+interface GuidanceStatusResponse {
+  user_id: string
+  guidance_completed: boolean
+  focus_score: number
+  last_guidance_at?: string
+  clustering_method: string
+  needs_guidance: boolean
+  keywords: string[]
+  original_keywords: string[]
+}
+
+interface FocusScoreResponse {
+  user_id: string
+  focus_score: number
+  clustering_method: string
+  last_updated: string
+  analysis_details: Record<string, unknown>
+}
+
+interface ClusteringAnalysisResponse {
+  clusters: string[][]
+  focus_score: number
+  similarity_matrix: number[][]
+  method_used: string
+  recommendations: string[]
+}
+
 // API 客戶端類別
 class ApiClient {
   private baseURL: string
@@ -200,6 +265,109 @@ class ApiClient {
     getStats: () => this.request<PushStatsResponse>('/history/stats')
   }
 
+  // Tags API
+  tags = {
+    getAll: () => this.request<Tag[]>('/tags/'),
+    
+    getCategories: () => this.request<TagCategory[]>('/tags/categories'),
+    
+    previewKeywordConversion: (keywords: string[]) =>
+      this.request<KeywordConversionPreview>('/tags/preview-keyword-conversion', {
+        method: 'POST',
+        body: JSON.stringify({ keywords })
+      }),
+    
+    getUserPreferences: () => this.request<TagPreferences>('/tags/user-preferences'),
+    
+    updateUserPreferences: (data: { subscribed_tags: string[], excluded_tags?: string[] }) =>
+      this.request<TagPreferences>('/tags/user-preferences', {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      }),
+    
+    explainArticleMatch: (articleId: number) =>
+      this.request<{ matches: Array<{ tag: Tag, confidence: number, reason: string }> }>(`/tags/explain-match/${articleId}`),
+    
+    getStats: () => this.request<TagStatsResponse>('/tags/stats'),
+    
+    getCacheStats: () => this.request<Record<string, unknown>>('/tags/cache-stats'),
+    
+    addKeywordMapping: (data: { tag_code: string, keywords: string[], mapping_type: string }) =>
+      this.request<{ success: boolean, message: string }>('/tags/keyword-mapping', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      })
+  }
+
+  // 完整的 Guidance API
+  guidance = {
+    // 基本狀態與資訊
+    getStatus: () => this.request<GuidanceStatusResponse>('/guidance/status'),
+    
+    getFocusScore: () => this.request<FocusScoreResponse>('/guidance/focus-score'),
+    
+    // 引導流程相關
+    getInvestmentFocusAreas: () => 
+      this.request<{ success: boolean; data: Array<{ code: string, name_zh: string, name_en: string, description: string, sample_keywords: string[] }> }>('/guidance/investment-focus-areas'),
+    
+    startOnboarding: () => 
+      this.request<{ success: boolean, message: string, current_step: string, guidance_id: string }>('/guidance/start-onboarding', {
+        method: 'POST'
+      }),
+    
+    selectInvestmentFocus: (data: { selected_options: string[] }) =>
+      this.request<{ status: string, step: string, progress: number, recommended_keywords: string[], recommended_topics: string[], selected_focus: Array<{code: string, name: string}>, customization_template: Record<string, unknown>, message?: string }>('/guidance/investment-focus', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }),
+    
+    analyzeKeywords: (data: { keywords: string[] }) =>
+      this.request<{ user_id: string, original_keywords: string[], clustering_result: { clusters: string[][], focus_score: number, primary_topics: string[], method: string }, guidance: { type: string, title: string, message: string, recommendations: string[] }, timestamp: string }>('/guidance/analyze-keywords', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }),
+    
+    finalizeOnboarding: (data: { final_keywords: string[] }) =>
+      this.request<{ status: string, step: string, progress: number, user_id: string, final_keywords: string[], analysis: Record<string, unknown>, message: string, next_steps: string[] }>('/guidance/finalize-onboarding', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }),
+    
+    // 優化與建議
+    getOptimizationSuggestions: () => 
+      this.request<{ suggestions: Array<{ type: string, message: string, action: string }>, focus_score: number }>('/guidance/optimization-suggestions'),
+    
+    optimizeExistingUser: () =>
+      this.request<{ success: boolean, message: string, optimization_applied: boolean }>('/guidance/optimize-existing-user', {
+        method: 'POST'
+      }),
+    
+    // 分析與工具
+    performClusteringAnalysis: (keywords: string[]) =>
+      this.request<ClusteringAnalysisResponse>('/guidance/clustering-analysis', {
+        method: 'POST',
+        body: JSON.stringify({ keywords })
+      }),
+    
+    getEnhancedTopics: () => 
+      this.request<{ topics: Array<{ code: string, name: string, keywords: string[] }> }>('/guidance/enhanced-topics'),
+    
+    getGuidanceHistory: (limit = 10) =>
+      this.request<Array<{ id: string, guidance_type: string, created_at: string, focus_score: number }>>(`/guidance/history?limit=${limit}`),
+    
+    updateUserKeywords: (data: { keywords: string[], force_update?: boolean }) =>
+      this.request<{ success: boolean, updated_keywords: string[], focus_score: number }>('/guidance/user-keywords', {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      }),
+    
+    getUsersNeedingGuidance: () => 
+      this.request<Array<{ user_id: string, focus_score: number, last_guidance_at?: string }>>('/guidance/users-needing-guidance'),
+    
+    getUsersWithLowFocus: (threshold = 0.5) =>
+      this.request<Array<{ user_id: string, focus_score: number }>>(`/guidance/users-low-focus?threshold=${threshold}`)
+  }
+
   // 系統 API
   system = {
     health: () => this.request<HealthCheckResponse>('/health'),
@@ -218,5 +386,15 @@ export type {
   PushStatsResponse,
   HealthCheckResponse,
   ConfigResponse,
-  FrequencyOptionsResponse
+  FrequencyOptionsResponse,
+  // Tags API 類型
+  Tag,
+  TagCategory,
+  TagPreferences,
+  TagStatsResponse,
+  KeywordConversionPreview,
+  // Guidance API 類型
+  GuidanceStatusResponse,
+  FocusScoreResponse,
+  ClusteringAnalysisResponse
 } 

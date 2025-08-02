@@ -9,7 +9,13 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Progress } from '@/components/ui/progress'
 import { useGuidance } from '@/hooks/useGuidance'
-import type { InvestmentFocusArea } from '@/lib/api-client-guidance'
+interface InvestmentFocusArea {
+  code: string
+  name_zh: string
+  name_en: string
+  description: string
+  sample_keywords: string[]
+}
 import { 
   ChevronRight, 
   ChevronLeft, 
@@ -191,7 +197,7 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
                   {area.description}
                 </p>
                 <div className="flex flex-wrap gap-1 mt-2">
-                  {area.sample_keywords.slice(0, 3).map((keyword, index) => (
+                  {area.sample_keywords.slice(0, 3).map((keyword: string, index: number) => (
                     <Badge key={index} variant="secondary" className="text-xs">
                       {keyword}
                     </Badge>
@@ -307,7 +313,7 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
     const analysis = onboardingFlow.analysisResult
     if (!analysis) return null
 
-    const focusScore = analysis.analysis.focus_score
+    const focusScore = analysis.clustering_result?.focus_score || 0
     const guidance = analysis.guidance
 
     return (
@@ -341,8 +347,8 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
             }>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                <strong>{guidance.title}</strong><br />
-                {guidance.message}
+                <strong>{guidance?.title || '分析完成'}</strong><br />
+                {guidance?.message || '關鍵字分析已完成'}
               </AlertDescription>
             </Alert>
           </CardContent>
@@ -355,34 +361,35 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {analysis.analysis.clusters.map((cluster, index) => (
+              {analysis.clustering_result?.clusters?.map((cluster: string[], index: number) => (
                 <div key={index} className="flex flex-wrap gap-2">
                   <Badge variant="outline">群組 {index + 1}</Badge>
-                  {cluster.map((keyword, keywordIndex) => (
+                  {cluster.map((keyword: string, keywordIndex: number) => (
                     <Badge key={keywordIndex} variant="secondary">
                       {keyword}
                     </Badge>
                   ))}
                 </div>
-              ))}
+              )) || (
+                <p className="text-gray-500">無聚類結果</p>
+              )}
             </div>
           </CardContent>
         </Card>
 
         {/* 優化建議 */}
-        {analysis.optimization_suggestions.length > 0 && (
+        {guidance?.recommendations && guidance.recommendations.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle>優化建議</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {analysis.optimization_suggestions.map((suggestion, index) => (
+                {guidance.recommendations.map((recommendation: string, index: number) => (
                   <Alert key={index}>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      <strong>{suggestion.title}</strong><br />
-                      {suggestion.description}
+                      {recommendation}
                     </AlertDescription>
                   </Alert>
                 ))}
@@ -447,7 +454,7 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
       </CardHeader>
       
       <CardContent>
-        {currentStep === 'investment_focus_selection' && renderWelcomeStep()}
+        {(currentStep === 'none' || currentStep === 'investment_focus_selection') && renderWelcomeStep()}
         {currentStep === 'investment_focus_selection' && renderInvestmentFocusStep()}
         {currentStep === 'keyword_customization' && renderKeywordCustomizationStep()}
         {currentStep === 'analysis' && renderAnalysisStep()}

@@ -1,13 +1,39 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { apiClient } from '@/lib/api-client-guidance'
+import { apiClient } from '@/lib/api-client'
 import type { 
-  GuidanceStatusResponse,
-  InvestmentFocusArea,
-  KeywordAnalysisResponse
-} from '@/lib/api-client-guidance'
+  GuidanceStatusResponse
+} from '@/lib/api-client'
+// Removed import of deleted guidance types file
 import { toast } from 'sonner'
+
+// Type definitions
+interface InvestmentFocusArea {
+  code: string
+  name_zh: string
+  name_en: string
+  description: string
+  sample_keywords: string[]
+}
+
+interface KeywordAnalysisResponse {
+  user_id: string
+  original_keywords: string[]
+  clustering_result: {
+    clusters: string[][]
+    focus_score: number
+    primary_topics: string[]
+    method: string
+  }
+  guidance: {
+    type: string
+    title: string
+    message: string
+    recommendations: string[]
+  }
+  timestamp: string
+}
 
 interface GuidanceState {
   status: GuidanceStatusResponse | null
@@ -94,8 +120,7 @@ export function useGuidance() {
       if (result.success) {
         setState(prev => ({
           ...prev,
-          currentStep: result.current_step,
-          investmentAreas: result.investment_focus_areas,
+          currentStep: 'investment_focus_selection',
           loading: false
         }))
         
@@ -126,27 +151,23 @@ export function useGuidance() {
   const selectInvestmentFocus = useCallback(async (selectedAreas: string[]) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }))
-      const result = await apiClient.guidance.selectInvestmentFocus({ selected_areas: selectedAreas })
+      const result = await apiClient.guidance.selectInvestmentFocus({ selected_options: selectedAreas })
       
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          currentStep: result.current_step,
-          loading: false
-        }))
-        
-        setOnboardingFlow(prev => ({
-          ...prev,
-          selectedAreas,
-          baseKeywords: result.base_keywords,
-          selectedTopics: result.suggested_topics
-        }))
-        
-        toast.success(result.message)
-        return { success: true, data: result }
-      } else {
-        throw new Error('投資領域選擇失敗')
-      }
+      setState(prev => ({
+        ...prev,
+        currentStep: result.step || 'keyword_customization',
+        loading: false
+      }))
+      
+      setOnboardingFlow(prev => ({
+        ...prev,
+        selectedAreas,
+        baseKeywords: result.recommended_keywords || [],
+        selectedTopics: result.recommended_topics || []
+      }))
+      
+      toast.success(result.message || '投資領域選擇完成')
+      return { success: true, data: result }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : '投資領域選擇失敗'
       setState(prev => ({ ...prev, loading: false, error: errorMessage }))
@@ -161,19 +182,19 @@ export function useGuidance() {
       setState(prev => ({ ...prev, loading: true, error: null }))
       const result = await apiClient.guidance.analyzeKeywords({ keywords })
       
-      if (result.success) {
-        setState(prev => ({ ...prev, loading: false }))
-        
-        setOnboardingFlow(prev => ({
-          ...prev,
-          customKeywords: keywords,
-          analysisResult: result
-        }))
-        
-        return { success: true, data: result }
-      } else {
-        throw new Error('關鍵字分析失敗')
-      }
+      setState(prev => ({ 
+        ...prev, 
+        loading: false,
+        currentStep: 'analysis'
+      }))
+      
+      setOnboardingFlow(prev => ({
+        ...prev,
+        customKeywords: keywords,
+        analysisResult: result
+      }))
+      
+      return { success: true, data: result }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : '關鍵字分析失敗'
       setState(prev => ({ ...prev, loading: false, error: errorMessage }))
@@ -187,31 +208,26 @@ export function useGuidance() {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }))
       const result = await apiClient.guidance.finalizeOnboarding({
-        final_keywords: finalKeywords,
-        selected_topics: selectedTopics
+        final_keywords: finalKeywords
       })
       
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          currentStep: 'completed',
-          loading: false
-        }))
-        
-        setOnboardingFlow(prev => ({
-          ...prev,
-          finalKeywords,
-          selectedTopics: selectedTopics || prev.selectedTopics
-        }))
-        
-        // 重新獲取引導狀態
-        await fetchGuidanceStatus()
-        
-        toast.success(result.message)
-        return { success: true, data: result }
-      } else {
-        throw new Error('完成引導失敗')
-      }
+      setState(prev => ({
+        ...prev,
+        currentStep: 'completed',
+        loading: false
+      }))
+      
+      setOnboardingFlow(prev => ({
+        ...prev,
+        finalKeywords,
+        selectedTopics: selectedTopics || prev.selectedTopics
+      }))
+      
+      // 重新獲取引導狀態
+      await fetchGuidanceStatus()
+      
+      toast.success(result.message || '引導設定完成')
+      return { success: true, data: result }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : '完成引導失敗'
       setState(prev => ({ ...prev, loading: false, error: errorMessage }))
@@ -236,7 +252,7 @@ export function useGuidance() {
   const getFocusScore = useCallback(async () => {
     try {
       const result = await apiClient.guidance.getFocusScore()
-      return { success: true, data: result.data }
+      return { success: true, data: result }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : '獲取聚焦度失敗'
       console.error('Failed to get focus score:', error)
@@ -250,7 +266,7 @@ export function useGuidance() {
       const result = await apiClient.guidance.optimizeExistingUser()
       if (result.success) {
         toast.success('優化分析完成')
-        return { success: true, data: result.data }
+        return { success: true, data: result }
       } else {
         throw new Error('優化分析失敗')
       }
