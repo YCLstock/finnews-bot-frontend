@@ -54,7 +54,7 @@ interface OnboardingFlow {
 }
 
 export function useGuidance() {
-  const { session, loading: authLoading } = useAuth()
+  const { session, loading: authLoading, isAuthenticated } = useAuth()
   
   const [state, setState] = useState<GuidanceState>({
     status: null,
@@ -75,8 +75,8 @@ export function useGuidance() {
 
   // 獲取引導狀態
   const fetchGuidanceStatus = useCallback(async () => {
-    if (!session) {
-      console.log('⚠️ No session available, skipping guidance status fetch')
+    if (!isAuthenticated) {
+      console.log('⚠️ Not authenticated, skipping guidance status fetch')
       setState(prev => ({ ...prev, loading: false, error: '需要登入' }))
       return null
     }
@@ -104,7 +104,7 @@ export function useGuidance() {
       console.error('Failed to fetch guidance status:', error)
       return null
     }
-  }, [session])
+  }, [isAuthenticated])
 
   // 獲取投資領域選項
   const fetchInvestmentAreas = useCallback(async () => {
@@ -127,29 +127,26 @@ export function useGuidance() {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }))
       const result = await apiClient.guidance.startOnboarding()
+      console.log('✅ Start onboarding response:', result)
       
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          currentStep: 'investment_focus_selection',
-          loading: false
-        }))
-        
-        // 重置引導流程狀態
-        setOnboardingFlow({
-          selectedAreas: [],
-          baseKeywords: [],
-          customKeywords: [],
-          analysisResult: null,
-          finalKeywords: [],
-          selectedTopics: []
-        })
-        
-        toast.success(result.message)
-        return { success: true, data: result }
-      } else {
-        throw new Error('引導啟動失敗')
-      }
+      setState(prev => ({
+        ...prev,
+        currentStep: 'investment_focus_selection',
+        loading: false
+      }))
+      
+      // 重置引導流程狀態
+      setOnboardingFlow({
+        selectedAreas: [],
+        baseKeywords: [],
+        customKeywords: [],
+        analysisResult: null,
+        finalKeywords: [],
+        selectedTopics: []
+      })
+      
+      toast.success('引導流程已開始')
+      return { success: true, data: result }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : '啟動引導流程失敗'
       setState(prev => ({ ...prev, loading: false, error: errorMessage }))
@@ -245,7 +242,7 @@ export function useGuidance() {
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
     }
-  }, [session, fetchGuidanceStatus])
+  }, [isAuthenticated, fetchGuidanceStatus])
 
   // 獲取優化建議
   const getOptimizationSuggestions = useCallback(async () => {
@@ -311,8 +308,8 @@ export function useGuidance() {
       return
     }
     
-    if (!session) {
-      console.log('⚠️ No session, skipping guidance initialization')
+    if (!isAuthenticated) {
+      console.log('⚠️ Not authenticated, skipping guidance initialization')
       setState(prev => ({ ...prev, loading: false, error: '需要登入' }))
       return
     }
@@ -320,7 +317,7 @@ export function useGuidance() {
     console.log('🚀 Auth complete, initializing guidance...')
     fetchGuidanceStatus()
     fetchInvestmentAreas()
-  }, [authLoading, session, fetchGuidanceStatus, fetchInvestmentAreas])
+  }, [authLoading, isAuthenticated, fetchGuidanceStatus, fetchInvestmentAreas])
 
   return {
     // 狀態

@@ -317,7 +317,7 @@ class ApiClient {
       this.request<{ success: boolean; data: Array<{ code: string, name_zh: string, name_en: string, description: string, sample_keywords: string[] }> }>('/guidance/investment-focus-areas'),
     
     startOnboarding: () => 
-      this.request<{ success: boolean, message: string, current_step: string, guidance_id: string }>('/guidance/start-onboarding', {
+      this.request<{ user_id: string, step: string, progress: number, total_steps: number, content: Record<string, unknown>, next_action: string }>('/guidance/start-onboarding', {
         method: 'POST'
       }),
     
