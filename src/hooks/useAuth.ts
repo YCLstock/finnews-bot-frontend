@@ -42,6 +42,8 @@ export function useAuth() {
         }
 
         const user = session?.user || null
+        
+        // 立即更新 API Token
         updateApiToken(session)
         
         setAuthState({
@@ -50,6 +52,13 @@ export function useAuth() {
           loading: false,
           error: null
         })
+        
+        // 認證狀態日誌
+        if (session) {
+          console.log('✅ Auth initialized with session for:', user?.email)
+        } else {
+          console.log('⚠️ No session found during initialization')
+        }
       } catch (error) {
         console.error('Auth initialization error:', error)
         setAuthState(prev => ({ 
@@ -67,9 +76,11 @@ export function useAuth() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email)
+        console.log('🔄 Auth state changed:', event, session?.user?.email)
         
         const user = session?.user || null
+        
+        // 更新 API Token
         updateApiToken(session)
         
         setAuthState({
@@ -78,6 +89,13 @@ export function useAuth() {
           loading: false,
           error: null
         })
+        
+        // 記錄認證狀態變化
+        if (event === 'SIGNED_IN' && session) {
+          console.log('✅ User signed in, API token updated')
+        } else if (event === 'SIGNED_OUT') {
+          console.log('🚫 User signed out, API token cleared')
+        }
       }
     )
 

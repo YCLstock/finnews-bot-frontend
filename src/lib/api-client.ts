@@ -189,6 +189,10 @@ class ApiClient {
         ...options.headers
       }
     }
+    
+    // 調試資訊
+    const hasAuth = !!(config.headers as Record<string, string>)?.['Authorization']
+    console.log(`🚀 API Request: ${config.method || 'GET'} ${endpoint}, Auth: ${hasAuth ? '✅' : '❌'}`)
 
     try {
       const response = await fetch(url, config)
@@ -225,10 +229,12 @@ class ApiClient {
   // 認證方法
   setAuthToken(token: string) {
     this.defaultHeaders['Authorization'] = `Bearer ${token}`
+    console.log('🔑 API Client: Auth token set, length:', token.length)
   }
 
   clearAuthToken() {
     delete this.defaultHeaders['Authorization']
+    console.log('🚫 API Client: Auth token cleared')
   }
 
   // 訂閱管理 API

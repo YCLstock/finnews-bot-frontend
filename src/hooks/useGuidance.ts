@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { apiClient } from '@/lib/api-client'
+import { useAuth } from '@/hooks/useAuth'
 import type { 
   GuidanceStatusResponse
 } from '@/lib/api-client'
@@ -53,6 +54,8 @@ interface OnboardingFlow {
 }
 
 export function useGuidance() {
+  const { session, loading: authLoading } = useAuth()
+  
   const [state, setState] = useState<GuidanceState>({
     status: null,
     investmentAreas: [],
@@ -72,9 +75,17 @@ export function useGuidance() {
 
   // 獲取引導狀態
   const fetchGuidanceStatus = useCallback(async () => {
+    if (!session) {
+      console.log('⚠️ No session available, skipping guidance status fetch')
+      setState(prev => ({ ...prev, loading: false, error: '需要登入' }))
+      return null
+    }
+    
     try {
+      console.log('📊 Fetching guidance status...')
       setState(prev => ({ ...prev, loading: true, error: null }))
       const status = await apiClient.guidance.getStatus()
+      console.log('✅ Guidance status fetched successfully:', status)
       setState(prev => ({
         ...prev,
         status,
@@ -93,7 +104,7 @@ export function useGuidance() {
       console.error('Failed to fetch guidance status:', error)
       return null
     }
-  }, [])
+  }, [session])
 
   // 獲取投資領域選項
   const fetchInvestmentAreas = useCallback(async () => {
@@ -234,7 +245,7 @@ export function useGuidance() {
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
     }
-  }, [fetchGuidanceStatus])
+  }, [session, fetchGuidanceStatus])
 
   // 獲取優化建議
   const getOptimizationSuggestions = useCallback(async () => {
@@ -293,11 +304,23 @@ export function useGuidance() {
     }))
   }, [])
 
-  // 初始化數據載入
+  // 初始化數據載入 - 等待認證完成
   useEffect(() => {
+    if (authLoading) {
+      console.log('🔄 Waiting for auth to complete...')
+      return
+    }
+    
+    if (!session) {
+      console.log('⚠️ No session, skipping guidance initialization')
+      setState(prev => ({ ...prev, loading: false, error: '需要登入' }))
+      return
+    }
+    
+    console.log('🚀 Auth complete, initializing guidance...')
     fetchGuidanceStatus()
     fetchInvestmentAreas()
-  }, [fetchGuidanceStatus, fetchInvestmentAreas])
+  }, [authLoading, session, fetchGuidanceStatus, fetchInvestmentAreas])
 
   return {
     // 狀態

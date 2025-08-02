@@ -12,13 +12,16 @@ interface ProtectedLayoutProps {
 
 export function ProtectedLayout({ children, className }: ProtectedLayoutProps) {
   const router = useRouter()
-  const { isAuthenticated, loading } = useAuth()
+  const { isAuthenticated, loading, session } = useAuth()
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
+      console.log('🚫 Not authenticated, redirecting to login')
       router.push('/login')
+    } else if (!loading && isAuthenticated && session) {
+      console.log('✅ Protected layout: User authenticated')
     }
-  }, [isAuthenticated, loading, router])
+  }, [isAuthenticated, loading, session, router])
 
   // 顯示載入狀態
   if (loading) {
