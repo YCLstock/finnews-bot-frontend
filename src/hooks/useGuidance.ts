@@ -65,6 +65,10 @@ export function useGuidance() {
     error: null
   })
 
+  // 步驟歷史管理
+  const [stepHistory, setStepHistory] = useState<string[]>([])
+  const [canGoBack, setCanGoBack] = useState(false)
+
   const [onboardingFlow, setOnboardingFlow] = useState<OnboardingFlow>({
     selectedAreas: [],
     baseKeywords: [],
@@ -124,12 +128,6 @@ export function useGuidance() {
       const result = await apiClient.guidance.startOnboarding()
       console.log('✅ Start onboarding response:', result)
       
-      setState(prev => ({
-        ...prev,
-        currentStep: 'investment_focus_selection',
-        loading: false
-      }))
-      
       // 重置引導流程狀態
       setOnboardingFlow({
         selectedAreas: [],
@@ -140,6 +138,11 @@ export function useGuidance() {
         selectedTopics: []
       })
       
+      // 重置步驟歷史並導航到第一步
+      resetStepHistory()
+      navigateToStep('investment_focus_selection', false)
+      
+      setState(prev => ({ ...prev, loading: false }))
       toast.success('引導流程已開始')
       return { success: true, data: result }
     } catch (error: unknown) {
@@ -148,19 +151,13 @@ export function useGuidance() {
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
     }
-  }, [])
+  }, [navigateToStep, resetStepHistory])
 
   // 選擇投資領域
   const selectInvestmentFocus = useCallback(async (selectedAreas: string[]) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }))
       const result = await apiClient.guidance.selectInvestmentFocus({ selected_options: selectedAreas })
-      
-      setState(prev => ({
-        ...prev,
-        currentStep: result.step || 'keyword_customization',
-        loading: false
-      }))
       
       setOnboardingFlow(prev => ({
         ...prev,
@@ -169,6 +166,10 @@ export function useGuidance() {
         selectedTopics: result.recommended_topics || []
       }))
       
+      // 導航到下一步
+      navigateToStep(result.step || 'keyword_customization')
+      
+      setState(prev => ({ ...prev, loading: false }))
       toast.success(result.message || '投資領域選擇完成')
       return { success: true, data: result }
     } catch (error: unknown) {
@@ -177,7 +178,7 @@ export function useGuidance() {
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
     }
-  }, [])
+  }, [navigateToStep])
 
   // 分析關鍵字
   const analyzeKeywords = useCallback(async (keywords: string[]) => {
@@ -185,18 +186,16 @@ export function useGuidance() {
       setState(prev => ({ ...prev, loading: true, error: null }))
       const result = await apiClient.guidance.analyzeKeywords({ keywords })
       
-      setState(prev => ({ 
-        ...prev, 
-        loading: false,
-        currentStep: 'analysis'
-      }))
-      
       setOnboardingFlow(prev => ({
         ...prev,
         customKeywords: keywords,
         analysisResult: result
       }))
       
+      // 導航到分析結果步驟
+      navigateToStep('analysis')
+      
+      setState(prev => ({ ...prev, loading: false }))
       return { success: true, data: result }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : '關鍵字分析失敗'
@@ -204,7 +203,7 @@ export function useGuidance() {
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
     }
-  }, [])
+  }, [navigateToStep])
 
   // 完成引導流程
   const finalizeOnboarding = useCallback(async (finalKeywords: string[], selectedTopics?: string[]) => {
@@ -214,21 +213,19 @@ export function useGuidance() {
         final_keywords: finalKeywords
       })
       
-      setState(prev => ({
-        ...prev,
-        currentStep: 'completed',
-        loading: false
-      }))
-      
       setOnboardingFlow(prev => ({
         ...prev,
         finalKeywords,
         selectedTopics: selectedTopics || prev.selectedTopics
       }))
       
+      // 導航到完成步驟
+      navigateToStep('completed')
+      
       // 重新獲取引導狀態
       await fetchGuidanceStatus()
       
+      setState(prev => ({ ...prev, loading: false }))
       toast.success(result.message || '引導設定完成')
       return { success: true, data: result }
     } catch (error: unknown) {
@@ -237,7 +234,7 @@ export function useGuidance() {
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
     }
-  }, [fetchGuidanceStatus])
+  }, [fetchGuidanceStatus, navigateToStep])
 
   // 獲取優化建議
   const getOptimizationSuggestions = useCallback(async () => {
@@ -304,6 +301,49 @@ export function useGuidance() {
     }))
   }, [])
 
+  // 步驟導航方法
+  const navigateToStep = useCallback((step: string, addToHistory: boolean = true) => {
+    setState(prev => {
+      const currentStep = prev.currentStep
+      
+      // 如果需要添加到歷史記錄
+      if (addToHistory && currentStep !== 'none' && currentStep !== step) {
+        setStepHistory(prev => [...prev, currentStep])
+        setCanGoBack(true)
+      }
+      
+      return {
+        ...prev,
+        currentStep: step
+      }
+    })
+  }, [])
+
+  // 返回上一步
+  const goToPreviousStep = useCallback(() => {
+    if (stepHistory.length > 0) {
+      const previousStep = stepHistory[stepHistory.length - 1]
+      const newHistory = stepHistory.slice(0, -1)
+      
+      setStepHistory(newHistory)
+      setCanGoBack(newHistory.length > 0)
+      
+      setState(prev => ({
+        ...prev,
+        currentStep: previousStep
+      }))
+      
+      return true
+    }
+    return false
+  }, [stepHistory])
+
+  // 重置步驟歷史
+  const resetStepHistory = useCallback(() => {
+    setStepHistory([])
+    setCanGoBack(false)
+  }, [])
+
   // 初始化數據載入 - 等待認證完成
   useEffect(() => {
     if (authLoading) {
@@ -354,6 +394,12 @@ export function useGuidance() {
     optimizeExistingUser,
     resetOnboarding,
     resetAnalysisResult,
+    
+    // 步驟導航方法
+    navigateToStep,
+    goToPreviousStep,
+    resetStepHistory,
+    canGoBack,
     
     // 工具方法
     refresh: () => {

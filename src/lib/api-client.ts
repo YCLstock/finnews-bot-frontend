@@ -164,6 +164,11 @@ interface ClusteringAnalysisResponse {
 class ApiClient {
   private baseURL: string
   private defaultHeaders: Record<string, string>
+  private requestTimeouts = {
+    default: 30000,    // 30 秒
+    extended: 60000,   // 60 秒（用於可能有冷啟動的請求）
+    guidance: 90000    // 90 秒（用於引導流程的 AI 分析）
+  }
 
   constructor() {
     this.baseURL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1`
@@ -171,6 +176,56 @@ class ApiClient {
       'Content-Type': 'application/json'
     }
     
+    // 檢測是否是 Render 部署環境
+    this.isRenderDeployment = this.baseURL.includes('onrender.com')
+  }
+
+  private isRenderDeployment: boolean
+
+  // 冷啟動檢測
+  private isColdStartError(error: ApiError): boolean {
+    return (
+      error.status === 0 || // 網路錯誤
+      error.status === 503 || // 服務不可用
+      error.status === 504 || // 網關超時
+      (error.message && (
+        error.message.includes('timeout') ||
+        error.message.includes('ECONNREFUSED') ||
+        error.message.includes('fetch failed')
+      ))
+    )
+  }
+
+  // 重試請求
+  private async retryRequest<T>(
+    fn: () => Promise<T>, 
+    maxRetries: number = 3,
+    delay: number = 2000
+  ): Promise<T> {
+    let lastError: Error
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await fn()
+      } catch (error) {
+        lastError = error as Error
+        
+        if (error instanceof ApiError && this.isColdStartError(error)) {
+          console.log(`🔄 API 請求失敗 (嘗試 ${attempt}/${maxRetries})，可能是冷啟動，${delay}ms 後重試...`)
+          
+          if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, delay))
+            delay *= 1.5 // 指數退避
+            continue
+          }
+        }
+        
+        throw error
+      }
+    }
+    
+    throw lastError!
+  }
     // 如果使用占位符值，顯示警告
     if (!process.env.NEXT_PUBLIC_API_URL) {
       console.warn('⚠️  使用預設 API URL (localhost:8000) - 請設置 NEXT_PUBLIC_API_URL 環境變數')
@@ -179,51 +234,91 @@ class ApiClient {
 
   public async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    timeoutMs?: number
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`
+    
+    // 決定使用的超時時間
+    const timeout = timeoutMs || this.getTimeoutForEndpoint(endpoint)
+    
     const config: RequestInit = {
       ...options,
       headers: {
         ...this.defaultHeaders,
         ...options.headers
-      }
+      },
+      signal: AbortSignal.timeout(timeout)
     }
     
     // 調試資訊
     const hasAuth = !!(config.headers as Record<string, string>)?.['Authorization']
-    console.log(`🚀 API Request: ${config.method || 'GET'} ${endpoint}, Auth: ${hasAuth ? '✅' : '❌'}`)
+    console.log(`🚀 API Request: ${config.method || 'GET'} ${endpoint}, Auth: ${hasAuth ? '✅' : '❌'}, Timeout: ${timeout}ms`)
 
-    try {
-      const response = await fetch(url, config)
-      
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
+    const requestFn = async (): Promise<T> => {
+      try {
+        const response = await fetch(url, config)
+        
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}))
+          throw new ApiError(
+            error.detail || 'Request failed',
+            response.status,
+            error
+          )
+        }
+
+        // 處理空響應（如 DELETE 請求）
+        if (response.status === 204) {
+          return {} as T
+        }
+
+        return await response.json()
+      } catch (error) {
+        if (error instanceof ApiError) {
+          throw error
+        }
+        
+        // 網路錯誤或其他錯誤
         throw new ApiError(
-          error.detail || 'Request failed',
-          response.status,
+          'Network error - please check your connection',
+          0,
           error
         )
       }
-
-      // 處理空響應（如 DELETE 請求）
-      if (response.status === 204) {
-        return {} as T
-      }
-
-      return await response.json()
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw error
-      }
-      
-      // 網路錯誤或其他錯誤
-      throw new ApiError(
-        'Network error - please check your connection',
-        0,
-        error
-      )
     }
+
+    // 如果是 Render 部署且可能是首次請求，使用重試機制
+    if (this.isRenderDeployment && this.shouldRetryForEndpoint(endpoint)) {
+      return this.retryRequest(requestFn, 3, 3000)
+    }
+    
+    return requestFn()
+  }
+
+  private getTimeoutForEndpoint(endpoint: string): number {
+    if (endpoint.includes('/guidance/') && (
+        endpoint.includes('analyze-keywords') ||
+        endpoint.includes('finalize-onboarding') ||
+        endpoint.includes('optimization-suggestions')
+      )) {
+      return this.requestTimeouts.guidance
+    }
+    
+    if (this.isRenderDeployment) {
+      return this.requestTimeouts.extended
+    }
+    
+    return this.requestTimeouts.default
+  }
+
+  private shouldRetryForEndpoint(endpoint: string): boolean {
+    // 對所有引導和關鍵功能啟用重試
+    return (
+      endpoint.includes('/guidance/') ||
+      endpoint.includes('/subscriptions/') ||
+      endpoint.includes('/status')
+    )
   }
 
   // 認證方法

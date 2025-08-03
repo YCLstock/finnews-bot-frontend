@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Progress } from '@/components/ui/progress'
+import { ColdStartAlert, isColdStartError } from '@/components/ui/cold-start-alert'
 import { useGuidance } from '@/hooks/useGuidance'
 import { 
   ChevronRight, 
@@ -46,7 +47,10 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
     selectInvestmentFocus,
     analyzeKeywords,
     finalizeOnboarding,
-    resetAnalysisResult
+    resetAnalysisResult,
+    navigateToStep,
+    goToPreviousStep,
+    canGoBack
   } = useGuidance()
 
   const [selectedAreas, setSelectedAreas] = useState<string[]>([])
@@ -54,6 +58,8 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
   const [customKeywords, setCustomKeywords] = useState<string[]>([])
   const [stepLoading, setStepLoading] = useState(false)
   const [stepError, setStepError] = useState<string | null>(null)
+  const [showColdStartAlert, setShowColdStartAlert] = useState(false)
+  const [coldStartRetryCount, setColdStartRetryCount] = useState(0)
 
   // 獲取當前步驟索引
   const getCurrentStepIndex = () => {
@@ -147,8 +153,17 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : '未知錯誤'
-      setStepError(errorMsg)
-      toast.error(errorMsg)
+      
+      // 檢測是否為冷啟動錯誤
+      if (error instanceof Error && isColdStartError(error)) {
+        setShowColdStartAlert(true)
+        setColdStartRetryCount(prev => prev + 1)
+        console.log('🥶 檢測到冷啟動錯誤，顯示等待提示')
+      } else {
+        setStepError(errorMsg)
+        toast.error(errorMsg)
+      }
+      
       console.error('OnboardingFlow handleNext error:', error)
     } finally {
       setStepLoading(false)
@@ -193,6 +208,14 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
   // 移除關鍵字
   const removeKeyword = (keyword: string) => {
     setCustomKeywords(prev => prev.filter(k => k !== keyword))
+  }
+
+  // 冷啟動重試
+  const handleColdStartRetry = () => {
+    setShowColdStartAlert(false)
+    setStepError(null)
+    // 重新執行當前步驟的操作
+    handleNext()
   }
 
   // 渲染歡迎步驟
@@ -365,12 +388,17 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
       </div>
 
       <div className="flex justify-between">
-        <Button variant="outline" onClick={() => {
-          // 返回到投資領域選擇步驟
-          setStepError(null)
-          // 這裡可以觸發回到上一步的邏輯，保持已選擇的領域狀態
-          window.history.back()
-        }}>
+        <Button 
+          variant="outline" 
+          onClick={() => {
+            setStepError(null)
+            if (!goToPreviousStep()) {
+              // 如果沒有歷史記錄，手動導航到上一步
+              navigateToStep('investment_focus_selection', false)
+            }
+          }}
+          disabled={!canGoBack}
+        >
           <ChevronLeft className="h-4 w-4 mr-2" />
           上一步
         </Button>
@@ -476,21 +504,77 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
         {/* 聚類結果 */}
         <Card>
           <CardHeader>
-            <CardTitle>關鍵字分組</CardTitle>
+            <CardTitle>關鍵字分組結果</CardTitle>
+            <CardDescription>
+              系統已將語義相關的關鍵字自動分組，相同概念的中英文詞彙會歸類在一起
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {analysis.clustering_result?.clusters?.map((cluster: string[], index: number) => (
-                <div key={index} className="flex flex-wrap gap-2">
-                  <Badge variant="outline">群組 {index + 1}</Badge>
-                  {cluster.map((keyword: string, keywordIndex: number) => (
-                    <Badge key={keywordIndex} variant="secondary">
-                      {keyword}
-                    </Badge>
-                  ))}
+                <div key={index} className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-800">
+                  <div className="flex items-center mb-2">
+                    <Badge variant="outline" className="mr-2">群組 {index + 1}</Badge>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {cluster.length} 個關鍵字
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {cluster.map((keyword: string, keywordIndex: number) => {
+                      // 檢查是否包含合併信息 (例如: "人工智慧 (包含: AI, machine learning)")
+                      const isGrouped = keyword.includes('(包含:')
+                      const hasNormalization = keyword.includes('(') && keyword.includes(')')
+                      
+                      return (
+                        <Badge 
+                          key={keywordIndex} 
+                          variant={isGrouped ? "default" : hasNormalization ? "secondary" : "outline"}
+                          className={
+                            isGrouped 
+                              ? "bg-green-100 text-green-800 border-green-200 max-w-xs" 
+                              : hasNormalization 
+                                ? "bg-blue-100 text-blue-800 border-blue-200" 
+                                : ""
+                          }
+                          title={isGrouped ? "此關鍵字包含多個語義相同的詞彙" : undefined}
+                        >
+                          {keyword}
+                        </Badge>
+                      )
+                    })}
+                  </div>
                 </div>
               )) || (
                 <p className="text-gray-500">無聚類結果</p>
+              )}
+              
+              {analysis.clustering_result?.normalized_keywords && (
+                <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                    <strong>智能分組說明：</strong>
+                  </p>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 text-xs">
+                        示例標籤
+                      </Badge>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        綠色標籤：語義相同的關鍵字已合併（如 "人工智慧" 包含 "AI"、"機器學習"）
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200 text-xs">
+                        示例標籤
+                      </Badge>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        藍色標籤：標準化處理的關鍵字
+                      </span>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-400 mt-2">
+                      💡 系統自動識別中英文相同概念，避免重複分組，提升新聞推送精準度
+                    </p>
+                  </div>
+                </div>
               )}
             </div>
           </CardContent>
@@ -519,10 +603,10 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
 
         <div className="flex justify-between">
           <Button variant="outline" onClick={() => {
-            // 返回到關鍵字自訂步驟，保持自訂的關鍵字
             setStepError(null)
-            // 清除分析結果，允許用戶重新調整關鍵字
+            // 清除分析結果並返回到關鍵字自訂步驟
             resetAnalysisResult()
+            navigateToStep('keyword_customization', false)
           }}>
             <ChevronLeft className="h-4 w-4 mr-2" />
             重新調整
@@ -575,7 +659,18 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
           )}
         </div>
         <Progress value={progress} className="mt-4" />
-        {stepError && (
+        
+        {/* 冷啟動提示 */}
+        <ColdStartAlert 
+          isVisible={showColdStartAlert}
+          onRetry={handleColdStartRetry}
+          onDismiss={() => setShowColdStartAlert(false)}
+          estimatedWaitTime={coldStartRetryCount > 1 ? 45 : 30}
+          className="mt-4"
+        />
+        
+        {/* 其他錯誤提示 */}
+        {stepError && !showColdStartAlert && (
           <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20 mt-4">
             <AlertCircle className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-700 dark:text-red-300">
