@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { ProtectedLayout } from '@/components/layout/ProtectedLayout'
 import { OnboardingFlow } from '@/components/guidance/OnboardingFlow'
 import { OptimizationBanner } from '@/components/guidance/OptimizationBanner'
+import { ModeSelection } from '@/components/onboarding/ModeSelection'
+import { QuickStart } from '@/components/onboarding/QuickStart'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -28,6 +30,7 @@ export default function GuidancePage() {
   } = useGuidance()
 
   const [showOnboarding, setShowOnboarding] = useState(needsGuidance)
+  const [onboardingMode, setOnboardingMode] = useState<'selection' | 'quick' | 'custom'>('selection')
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false)
@@ -35,7 +38,16 @@ export default function GuidancePage() {
   }
 
   const handleStartOptimization = () => {
+    setOnboardingMode('selection')
     setShowOnboarding(true)
+  }
+
+  const handleModeSelection = (mode: 'quick' | 'custom') => {
+    setOnboardingMode(mode)
+  }
+
+  const handleBackToSelection = () => {
+    setOnboardingMode('selection')
   }
 
   if (loading) {
@@ -84,10 +96,25 @@ export default function GuidancePage() {
 
         {/* 引導流程或狀態展示 */}
         {showOnboarding ? (
-          <OnboardingFlow
-            onComplete={handleOnboardingComplete}
-            onCancel={() => setShowOnboarding(false)}
-          />
+          <div>
+            {onboardingMode === 'selection' && (
+              <ModeSelection onSelectMode={handleModeSelection} />
+            )}
+            
+            {onboardingMode === 'quick' && (
+              <QuickStart 
+                onBack={handleBackToSelection}
+                onComplete={handleOnboardingComplete}
+              />
+            )}
+            
+            {onboardingMode === 'custom' && (
+              <OnboardingFlow
+                onComplete={handleOnboardingComplete}
+                onCancel={handleBackToSelection}
+              />
+            )}
+          </div>
         ) : (
           <div className="max-w-2xl mx-auto space-y-6">
             {/* 優化建議橫幅 */}

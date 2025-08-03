@@ -148,6 +148,56 @@ interface FocusScoreResponse {
   user_id: string
   focus_score: number
   clustering_method: string
+}
+
+// Quick Onboarding 類型
+interface QuickSetupRequest {
+  interest_category: 'tech' | 'crypto' | 'market'
+  delivery_platform: 'discord' | 'email'
+  delivery_target: string
+  summary_language: string
+  push_frequency_type?: string
+}
+
+interface QuickSetupResponse {
+  success: boolean
+  subscription_id: string
+  template_used: string
+  keywords: string[]
+  focus_score: number
+  message: string
+  next_steps: string[]
+}
+
+interface QuickTemplate {
+  id: string
+  name: string
+  name_en: string
+  description: string
+  description_en: string
+  icon: string
+  keywords: string[]
+  sample_news: string
+  focus_score: number
+}
+
+interface PlatformInfo {
+  name: string
+  description: string
+  icon: string
+  setup_required: boolean
+  setup_steps: string[]
+  target_format: string
+  pros: string[]
+  cons: string[]
+}
+
+interface ValidationResponse {
+  platform: string
+  target: string
+  is_valid: boolean
+  error?: string
+  help?: string
   last_updated: string
   analysis_details: Record<string, unknown>
 }
@@ -469,6 +519,30 @@ class ApiClient {
       this.request<Array<{ user_id: string, focus_score: number }>>(`/guidance/users-low-focus?threshold=${threshold}`)
   }
 
+  // Quick Onboarding API
+  quickOnboarding = {
+    getTemplates: () => 
+      this.request<{ success: boolean, templates: QuickTemplate[], supported_platforms: string[], platform_info: Record<string, any> }>('/quick-onboarding/templates'),
+    
+    quickSetup: (data: QuickSetupRequest) =>
+      this.request<QuickSetupResponse>('/quick-onboarding/setup', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }),
+    
+    getPlatformInfo: () =>
+      this.request<{ supported_platforms: string[], platforms: Record<string, PlatformInfo> }>('/quick-onboarding/platform-info'),
+    
+    validateTarget: (platform: string, target: string) =>
+      this.request<ValidationResponse>('/quick-onboarding/validate-target', {
+        method: 'POST',
+        body: JSON.stringify({ platform, target })
+      }),
+    
+    checkMigration: () =>
+      this.request<{ has_subscription: boolean, current_method?: string, is_quick_setup?: boolean, can_migrate_to_quick?: boolean, message: string }>('/quick-onboarding/migration-check')
+  }
+
   // 系統 API
   system = {
     health: () => this.request<HealthCheckResponse>('/health'),
@@ -497,5 +571,11 @@ export type {
   // Guidance API 類型
   GuidanceStatusResponse,
   FocusScoreResponse,
+  // Quick Onboarding 類型
+  QuickSetupRequest,
+  QuickSetupResponse,
+  QuickTemplate,
+  PlatformInfo,
+  ValidationResponse,
   ClusteringAnalysisResponse
 } 
