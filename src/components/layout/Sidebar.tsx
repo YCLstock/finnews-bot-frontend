@@ -154,6 +154,10 @@ export function Sidebar({ className }: SidebarProps) {
                     width={32}
                     height={32}
                     className="h-8 w-8 rounded-full"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                    }}
                   />
                 ) : (
                   <div className="h-8 w-8 bg-primary rounded-full flex items-center justify-center">

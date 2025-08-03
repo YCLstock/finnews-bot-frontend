@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { apiClient, ApiError } from '@/lib/api-client'
+import { useAuth } from '@/hooks/useAuth'
 import type { 
   SubscriptionResponse, 
   SubscriptionCreateRequest, 
@@ -23,6 +24,9 @@ interface FrequencyOptionsState {
 }
 
 export function useSubscription() {
+  const { loading: authLoading, isAuthenticated } = useAuth()
+  const [isInitialized, setIsInitialized] = useState(false)
+  
   const [state, setState] = useState<SubscriptionState>({
     subscription: null,
     loading: true,
@@ -38,8 +42,10 @@ export function useSubscription() {
   // 獲取用戶訂閱
   const fetchSubscription = useCallback(async () => {
     try {
+      console.log('📋 Fetching subscription...')
       setState(prev => ({ ...prev, loading: true, error: null }))
       const subscription = await apiClient.subscriptions.get()
+      console.log('✅ Subscription fetched successfully:', subscription)
       setState({
         subscription,
         loading: false,
@@ -59,8 +65,10 @@ export function useSubscription() {
   // 獲取頻率選項
   const fetchFrequencyOptions = useCallback(async () => {
     try {
+      console.log('⚙️ Fetching frequency options...')
       setFrequencyOptions(prev => ({ ...prev, loading: true, error: null }))
       const options = await apiClient.subscriptions.getFrequencyOptions()
+      console.log('✅ Frequency options fetched successfully:', options)
       setFrequencyOptions({
         options,
         loading: false,
@@ -157,11 +165,31 @@ export function useSubscription() {
     }
   }, [])
 
-  // 初始化數據載入
+  // 初始化數據載入 - 等待認證完成
   useEffect(() => {
+    if (authLoading) {
+      console.log('🔄 [useSubscription] Waiting for auth to complete...')
+      return
+    }
+    
+    if (!isAuthenticated) {
+      console.log('⚠️ [useSubscription] Not authenticated, skipping subscription initialization')
+      setState(prev => ({ ...prev, loading: false, error: '需要登入' }))
+      setFrequencyOptions(prev => ({ ...prev, loading: false, error: '需要登入' }))
+      setIsInitialized(false)
+      return
+    }
+    
+    if (isInitialized) {
+      console.log('🔄 [useSubscription] Already initialized, skipping...')
+      return
+    }
+    
+    console.log('🚀 [useSubscription] Auth complete, initializing subscription...')
+    setIsInitialized(true)
     fetchSubscription()
     fetchFrequencyOptions()
-  }, [fetchSubscription, fetchFrequencyOptions])
+  }, [authLoading, isAuthenticated, isInitialized, fetchSubscription, fetchFrequencyOptions])
 
   return {
     // 訂閱狀態
@@ -184,8 +212,10 @@ export function useSubscription() {
     
     // 工具方法
     refresh: () => {
-      fetchSubscription()
-      fetchFrequencyOptions()
+      if (isAuthenticated) {
+        fetchSubscription()
+        fetchFrequencyOptions()
+      }
     }
   }
 } 
