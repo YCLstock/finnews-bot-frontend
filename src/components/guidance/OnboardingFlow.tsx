@@ -51,6 +51,8 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
   const [selectedAreas, setSelectedAreas] = useState<string[]>([])
   const [keywordInput, setKeywordInput] = useState('')
   const [customKeywords, setCustomKeywords] = useState<string[]>([])
+  const [stepLoading, setStepLoading] = useState(false)
+  const [stepError, setStepError] = useState<string | null>(null)
 
   // 獲取當前步驟索引
   const getCurrentStepIndex = () => {
@@ -69,56 +71,122 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
 
   // 同步引導流程狀態
   useEffect(() => {
+    if (onboardingFlow.selectedAreas.length > 0) {
+      setSelectedAreas([...onboardingFlow.selectedAreas])
+    }
     if (onboardingFlow.baseKeywords.length > 0) {
       setCustomKeywords([...onboardingFlow.baseKeywords])
     }
-  }, [onboardingFlow.baseKeywords])
+  }, [onboardingFlow.baseKeywords, onboardingFlow.selectedAreas])
 
   // 處理投資領域選擇
   const handleAreaSelection = (areaCode: string) => {
-    setSelectedAreas(prev => 
-      prev.includes(areaCode)
+    setSelectedAreas(prev => {
+      const newSelection = prev.includes(areaCode)
         ? prev.filter(code => code !== areaCode)
         : [...prev, areaCode]
-    )
+      
+      // 清除錯誤狀態如果有選擇
+      if (newSelection.length > 0) {
+        setStepError(null)
+      }
+      
+      return newSelection
+    })
   }
 
   // 繼續到下一步
   const handleNext = async () => {
-    if (currentStep === 'investment_focus_selection') {
-      if (selectedAreas.length === 0) {
-        toast.error('請至少選擇一個投資領域')
-        return
+    setStepLoading(true)
+    setStepError(null)
+    
+    try {
+      if (currentStep === 'none' || currentStep === 'welcome') {
+        const result = await startOnboarding()
+        if (!result.success) {
+          setStepError(result.error || '啟動引導流程失敗')
+          return
+        }
+      } else if (currentStep === 'investment_focus_selection') {
+        if (selectedAreas.length === 0) {
+          setStepError('請至少選擇一個投資領域')
+          toast.error('請至少選擇一個投資領域')
+          return
+        }
+        const result = await selectInvestmentFocus(selectedAreas)
+        if (!result.success) {
+          const errorMsg = result.error || '選擇投資領域失敗'
+          setStepError(errorMsg)
+          toast.error(errorMsg)
+          return
+        }
+      } else if (currentStep === 'keyword_customization') {
+        if (customKeywords.length === 0) {
+          setStepError('請至少添加一個關鍵字')
+          toast.error('請至少添加一個關鍵字')
+          return
+        }
+        const result = await analyzeKeywords(customKeywords)
+        if (!result.success) {
+          const errorMsg = result.error || '關鍵字分析失敗'
+          setStepError(errorMsg)
+          toast.error(errorMsg)
+          return
+        }
+      } else if (currentStep === 'analysis') {
+        const result = await finalizeOnboarding(customKeywords, onboardingFlow.selectedTopics)
+        if (result.success) {
+          onComplete?.()
+        } else {
+          const errorMsg = result.error || '完成設定失敗'
+          setStepError(errorMsg)
+          toast.error(errorMsg)
+          return
+        }
       }
-      await selectInvestmentFocus(selectedAreas)
-    } else if (currentStep === 'keyword_customization') {
-      if (customKeywords.length === 0) {
-        toast.error('請至少添加一個關鍵字')
-        return
-      }
-      const result = await analyzeKeywords(customKeywords)
-      if (result.success) {
-        // 自動進入分析步驟
-      }
-    } else if (currentStep === 'analysis') {
-      const result = await finalizeOnboarding(customKeywords, onboardingFlow.selectedTopics)
-      if (result.success) {
-        onComplete?.()
-      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : '未知錯誤'
+      setStepError(errorMsg)
+      toast.error(errorMsg)
+      console.error('OnboardingFlow handleNext error:', error)
+    } finally {
+      setStepLoading(false)
     }
   }
 
   // 添加關鍵字
   const addKeyword = () => {
     const keyword = keywordInput.trim()
-    if (keyword && !customKeywords.includes(keyword)) {
-      if (customKeywords.length >= 10) {
-        toast.error('最多只能添加 10 個關鍵字')
-        return
-      }
-      setCustomKeywords(prev => [...prev, keyword])
-      setKeywordInput('')
+    
+    if (!keyword) {
+      toast.error('請輸入關鍵字')
+      return
     }
+    
+    if (keyword.length < 2) {
+      toast.error('關鍵字至少需要 2 個字符')
+      return
+    }
+    
+    if (keyword.length > 20) {
+      toast.error('關鍵字不能超過 20 個字符')
+      return
+    }
+    
+    if (customKeywords.includes(keyword)) {
+      toast.error('關鍵字已存在')
+      return
+    }
+    
+    if (customKeywords.length >= 10) {
+      toast.error('最多只能添加 10 個關鍵字')
+      return
+    }
+    
+    setCustomKeywords(prev => [...prev, keyword])
+    setKeywordInput('')
+    setStepError(null) // 清除之前的錯誤
+    toast.success(`已添加關鍵字：${keyword}`)
   }
 
   // 移除關鍵字
@@ -168,6 +236,13 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
         <p className="text-gray-600 dark:text-gray-400">
           可以選擇多個領域，系統會為您推薦相關關鍵字
         </p>
+        {selectedAreas.length > 0 && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              已選擇 {selectedAreas.length} 個領域
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -210,9 +285,18 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
           <ChevronLeft className="h-4 w-4 mr-2" />
           取消
         </Button>
-        <Button onClick={handleNext} disabled={selectedAreas.length === 0}>
-          繼續
-          <ChevronRight className="h-4 w-4 ml-2" />
+        <Button onClick={handleNext} disabled={selectedAreas.length === 0 || stepLoading}>
+          {stepLoading ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              處理中...
+            </>
+          ) : (
+            <>
+              繼續
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </>
+          )}
         </Button>
       </div>
     </div>
@@ -280,12 +364,17 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
       </div>
 
       <div className="flex justify-between">
-        <Button variant="outline" onClick={() => setSelectedAreas([])}>
+        <Button variant="outline" onClick={() => {
+          // 返回到投資領域選擇步驟
+          setStepError(null)
+          // 這裡可以觸發回到上一步的邏輯，保持已選擇的領域狀態
+          window.history.back()
+        }}>
           <ChevronLeft className="h-4 w-4 mr-2" />
           上一步
         </Button>
-        <Button onClick={handleNext} disabled={customKeywords.length === 0 || loading}>
-          {loading ? (
+        <Button onClick={handleNext} disabled={customKeywords.length === 0 || loading || stepLoading}>
+          {(loading || stepLoading) ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               分析中...
@@ -296,6 +385,42 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
               <ChevronRight className="h-4 w-4 ml-2" />
             </>
           )}
+        </Button>
+      </div>
+    </div>
+  )
+
+  // 渲染完成步驟
+  const renderCompletionStep = () => (
+    <div className="text-center space-y-6">
+      <div className="mx-auto w-16 h-16 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center">
+        <CheckCircle className="h-8 w-8 text-white" />
+      </div>
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          🎉 設定完成！
+        </h2>
+        <p className="text-gray-600 dark:text-gray-400">
+          您的個人化新聞推送已設定完成，現在可以開始接收精準的財經新聞了。
+        </p>
+      </div>
+      <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+        <p className="text-sm text-green-700 dark:text-green-300 mb-2">
+          <strong>設定摘要：</strong>
+        </p>
+        <ul className="text-sm text-green-600 dark:text-green-400 space-y-1">
+          <li>• 已選擇 {selectedAreas.length} 個投資領域</li>
+          <li>• 設定了 {customKeywords.length} 個關鍵字</li>
+          <li>• AI 聚焦度分析已完成</li>
+        </ul>
+      </div>
+      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <Button onClick={onComplete} size="lg">
+          <CheckCircle className="h-4 w-4 mr-2" />
+          前往儀表板
+        </Button>
+        <Button variant="outline" size="lg" onClick={() => window.location.href = '/subscriptions'}>
+          管理訂閱設定
         </Button>
       </div>
     </div>
@@ -392,12 +517,21 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
         )}
 
         <div className="flex justify-between">
-          <Button variant="outline" onClick={() => setCustomKeywords([])}>
+          <Button variant="outline" onClick={() => {
+            // 返回到關鍵字自訂步驟，保持自訂的關鍵字
+            setStepError(null)
+            // 清除分析結果，允許用戶重新調整關鍵字
+            setOnboardingFlow(prev => ({
+              ...prev,
+              analysisResult: null
+            }))
+            // 這裡需要更新引導狀態回到關鍵字設定步驟
+          }}>
             <ChevronLeft className="h-4 w-4 mr-2" />
             重新調整
           </Button>
-          <Button onClick={handleNext} disabled={loading}>
-            {loading ? (
+          <Button onClick={handleNext} disabled={loading || stepLoading}>
+            {(loading || stepLoading) ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 完成設定中...
@@ -444,13 +578,22 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
           )}
         </div>
         <Progress value={progress} className="mt-4" />
+        {stepError && (
+          <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20 mt-4">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-700 dark:text-red-300">
+              {stepError}
+            </AlertDescription>
+          </Alert>
+        )}
       </CardHeader>
       
       <CardContent>
-        {currentStep === 'none' && renderWelcomeStep()}
+        {(currentStep === 'none' || currentStep === 'welcome') && renderWelcomeStep()}
         {currentStep === 'investment_focus_selection' && renderInvestmentFocusStep()}
         {currentStep === 'keyword_customization' && renderKeywordCustomizationStep()}
         {currentStep === 'analysis' && renderAnalysisStep()}
+        {currentStep === 'completion' && renderCompletionStep()}
       </CardContent>
     </Card>
   )
