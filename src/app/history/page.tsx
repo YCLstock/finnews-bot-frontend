@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useHistory } from '@/hooks/useHistory'
+import { ColdStartAlert } from '@/components/ui/cold-start-alert'
 import { 
   History, 
   ExternalLink, 
@@ -31,19 +32,20 @@ export default function HistoryPage() {
     hasMore,
     isEmpty,
     totalItems,
-    fetchHistory,
-    fetchStats,
+    isRetrying,
+    retryAttempt,  
+    maxRetries,
+    fetchAllData,
     loadMore,
     refresh
   } = useHistory()
 
   const [refreshing, setRefreshing] = useState(false)
 
-  // 初始載入數據
+  // 初始載入數據 (使用序列化請求避免並發)
   useEffect(() => {
-    fetchHistory(20)
-    fetchStats()
-  }, [fetchHistory, fetchStats])
+    fetchAllData(20, true)
+  }, [fetchAllData])
 
   // 刷新數據
   const handleRefresh = async () => {
@@ -108,6 +110,15 @@ export default function HistoryPage() {
             </Button>
           </div>
         </div>
+
+        {/* 冷啟動提示 */}
+        <ColdStartAlert
+          isRetrying={isRetrying}
+          retryAttempt={retryAttempt}
+          maxRetries={maxRetries}
+          onRetry={() => fetchAllData(20, true)}
+          className="mb-6"
+        />
 
         {/* 統計卡片 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -335,12 +346,46 @@ export default function HistoryPage() {
           </CardContent>
         </Card>
 
-        {/* 統計載入錯誤提示 */}
-        {statsLoading && (
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
+        {/* 載入和錯誤狀態提示 */}
+        {(historyLoading || statsLoading) && !isRetrying && (
+          <Alert className="border-blue-200 bg-blue-50">
+            <RefreshCw className="h-4 w-4 animate-spin text-blue-600" />
             <AlertDescription>
-              正在載入統計數據...
+              <div className="flex items-center justify-between">
+                <span className="text-blue-800">
+                  正在載入數據，請稍候...
+                </span>
+                <span className="text-xs text-blue-600">
+                  {historyLoading && statsLoading ? '載入歷史記錄和統計' : 
+                   historyLoading ? '載入歷史記錄' : '載入統計數據'}
+                </span>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* 錯誤狀態提示 */}
+        {!isRetrying && !historyLoading && !statsLoading && isEmpty && (
+          <Alert className="border-amber-200 bg-amber-50">
+            <AlertCircle className="h-4 w-4 text-amber-600" />
+            <AlertDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-amber-800">載入遇到問題</h4>
+                  <p className="text-sm text-amber-700 mt-1">
+                    可能是網路連線問題或伺服器暫時無法回應
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => fetchAllData(20, true)}
+                  variant="outline"
+                  size="sm"
+                  className="border-amber-300 text-amber-700 hover:bg-amber-100"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  重試
+                </Button>
+              </div>
             </AlertDescription>
           </Alert>
         )}

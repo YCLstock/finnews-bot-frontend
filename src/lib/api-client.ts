@@ -247,10 +247,13 @@ class ApiClient {
       error.status === 0 || // 網路錯誤
       error.status === 503 || // 服務不可用
       error.status === 504 || // 網關超時
+      error.status === 524 || // Cloudflare 超時
       (!!error.message && (
         error.message.includes('timeout') ||
         error.message.includes('ECONNREFUSED') ||
-        error.message.includes('fetch failed')
+        error.message.includes('fetch failed') ||
+        error.message.includes('ERR_INSUFFICIENT_RESOURCES') ||
+        error.message.includes('Network error')
       ))
     )
   }
@@ -258,10 +261,11 @@ class ApiClient {
   // 重試請求
   private async retryRequest<T>(
     fn: () => Promise<T>, 
-    maxRetries: number = 3,
-    delay: number = 2000
+    maxRetries: number = 5,
+    initialDelay: number = 5000
   ): Promise<T> {
     let lastError: Error
+    let delay = initialDelay
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -270,11 +274,13 @@ class ApiClient {
         lastError = error as Error
         
         if (error instanceof ApiError && this.isColdStartError(error)) {
-          console.log(`🔄 API 請求失敗 (嘗試 ${attempt}/${maxRetries})，可能是冷啟動，${delay}ms 後重試...`)
+          console.log(`🔄 API 請求失敗 (嘗試 ${attempt}/${maxRetries})，可能是 Render 冷啟動，${delay}ms 後重試...`)
+          console.log(`ℹ️ 冷啟動通常需要 30-60 秒，請耐心等待...`)
           
           if (attempt < maxRetries) {
             await new Promise(resolve => setTimeout(resolve, delay))
-            delay *= 1.5 // 指數退避
+            // 針對冷啟動優化的延遲策略：5s -> 8s -> 12s -> 18s
+            delay = Math.min(delay * 1.5, 20000)
             continue
           }
         }
@@ -359,6 +365,11 @@ class ApiClient {
       return this.requestTimeouts.guidance
     }
     
+    // 針對 history 端點的特殊處理
+    if (endpoint.includes('/history/')) {
+      return this.isRenderDeployment ? this.requestTimeouts.extended * 1.5 : this.requestTimeouts.extended
+    }
+    
     if (this.isRenderDeployment) {
       return this.requestTimeouts.extended
     }
@@ -371,6 +382,7 @@ class ApiClient {
     return (
       endpoint.includes('/guidance/') ||
       endpoint.includes('/subscriptions/') ||
+      endpoint.includes('/history/') ||
       endpoint.includes('/status')
     )
   }
