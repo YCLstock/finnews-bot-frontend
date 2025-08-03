@@ -31,6 +31,8 @@ export default function HistoryPage() {
     statsLoading,
     hasMore,
     isEmpty,
+    hasError,
+    hasLoadedSuccessfully,
     totalItems,
     isRetrying,
     retryAttempt,  
@@ -364,8 +366,8 @@ export default function HistoryPage() {
           </Alert>
         )}
 
-        {/* 錯誤狀態提示 */}
-        {!isRetrying && !historyLoading && !statsLoading && isEmpty && (
+        {/* 錯誤狀態提示 - 只有在真正載入失敗時才顯示 */}
+        {hasError && !isRetrying && !hasLoadedSuccessfully && (
           <Alert className="border-amber-200 bg-amber-50">
             <AlertCircle className="h-4 w-4 text-amber-600" />
             <AlertDescription>

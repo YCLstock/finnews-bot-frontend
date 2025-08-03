@@ -10,12 +10,14 @@ interface HistoryState {
   loading: boolean
   error: string | null
   hasMore: boolean
+  hasLoadedSuccessfully: boolean
 }
 
 interface StatsState {
   stats: PushStatsResponse | null
   loading: boolean
   error: string | null
+  hasLoadedSuccessfully: boolean
 }
 
 interface ColdStartState {
@@ -29,13 +31,15 @@ export function useHistory() {
     history: [],
     loading: false,
     error: null,
-    hasMore: true
+    hasMore: true,
+    hasLoadedSuccessfully: false
   })
 
   const [statsState, setStatsState] = useState<StatsState>({
     stats: null,
     loading: false,
-    error: null
+    error: null,
+    hasLoadedSuccessfully: false
   })
 
   const [coldStartState, setColdStartState] = useState<ColdStartState>({
@@ -73,7 +77,8 @@ export function useHistory() {
         history: reset ? data : [...prev.history, ...data],
         loading: false,
         error: null,
-        hasMore: data.length === limit
+        hasMore: data.length === limit,
+        hasLoadedSuccessfully: true
       }))
       
       return data
@@ -118,7 +123,8 @@ export function useHistory() {
       setStatsState({
         stats,
         loading: false,
-        error: null
+        error: null,
+        hasLoadedSuccessfully: true
       })
       
       return stats
@@ -145,7 +151,8 @@ export function useHistory() {
       setStatsState({
         stats: null,
         loading: false,
-        error: errorMessage
+        error: errorMessage,
+        hasLoadedSuccessfully: false
       })
       
       console.error('Failed to fetch stats:', error)
@@ -194,12 +201,14 @@ export function useHistory() {
       history: [],
       loading: false,
       error: null,
-      hasMore: true
+      hasMore: true,
+      hasLoadedSuccessfully: false
     })
     setStatsState({
       stats: null,
       loading: false,
-      error: null
+      error: null,
+      hasLoadedSuccessfully: false
     })
   }, [])
 
@@ -230,6 +239,8 @@ export function useHistory() {
     
     // 工具方法
     isEmpty: historyState.history.length === 0 && !historyState.loading,
+    hasError: !!(historyState.error || statsState.error) && !coldStartState.isRetrying,
+    hasLoadedSuccessfully: historyState.hasLoadedSuccessfully && statsState.hasLoadedSuccessfully,
     totalItems: historyState.history.length,
     isColdStartError
   }
