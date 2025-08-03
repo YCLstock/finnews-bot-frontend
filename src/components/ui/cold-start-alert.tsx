@@ -66,10 +66,9 @@ export function ColdStartAlert({
             <Progress 
               value={progress} 
               className="h-2"
-              // @ts-expect-error - CSS custom properties are not typed
               style={{
                 '--progress-foreground': isNearComplete ? '#ef4444' : '#3b82f6'
-              }}
+              } as React.CSSProperties}
             />
           </div>
 
