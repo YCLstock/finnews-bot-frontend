@@ -669,13 +669,15 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
         <Progress value={progress} className="mt-4" />
         
         {/* 冷啟動提示 */}
-        <ColdStartAlert 
-          isVisible={showColdStartAlert}
-          onRetry={handleColdStartRetry}
-          onDismiss={() => setShowColdStartAlert(false)}
-          estimatedWaitTime={coldStartRetryCount > 1 ? 45 : 30}
-          className="mt-4"
-        />
+        {showColdStartAlert && (
+          <ColdStartAlert 
+            isRetrying={true}
+            retryAttempt={coldStartRetryCount}
+            maxRetries={5}
+            onRetry={handleColdStartRetry}
+            className="mt-4"
+          />
+        )}
         
         {/* 其他錯誤提示 */}
         {stepError && !showColdStartAlert && (
