@@ -94,9 +94,27 @@ export function QuickStart({ onBack, onComplete }: QuickStartProps) {
       const result = await apiClient.quickOnboarding.validateTarget(platform, target)
       setTargetValid(result.is_valid)
       setValidationError(result.error || '')
-    } catch {
+      
+      // 記錄詳細的驗證資訊用於調試
+      if (result.analysis_details) {
+        console.log('📊 驗證詳情:', result.analysis_details)
+      }
+    } catch (error) {
+      console.error('❌ 驗證請求錯誤:', error)
       setTargetValid(false)
-      setValidationError('驗證失敗，請稍後重試')
+      
+      // 提供更具體的錯誤信息
+      if (error instanceof Error) {
+        if (error.message.includes('timeout') || error.message.includes('ERR_INSUFFICIENT_RESOURCES')) {
+          setValidationError('伺服器連接超時，請稍後重試')
+        } else if (error.message.includes('Network')) {
+          setValidationError('網路連線問題，請檢查您的網路連線')
+        } else {
+          setValidationError('驗證失敗，請稍後重試')
+        }
+      } else {
+        setValidationError('驗證失敗，請稍後重試')
+      }
     } finally {
       setValidationLoading(false)
     }
