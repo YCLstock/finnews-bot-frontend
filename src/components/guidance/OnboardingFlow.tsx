@@ -45,7 +45,8 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
     startOnboarding,
     selectInvestmentFocus,
     analyzeKeywords,
-    finalizeOnboarding
+    finalizeOnboarding,
+    resetAnalysisResult
   } = useGuidance()
 
   const [selectedAreas, setSelectedAreas] = useState<string[]>([])
@@ -520,9 +521,8 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
           <Button variant="outline" onClick={() => {
             // 返回到關鍵字自訂步驟，保持自訂的關鍵字
             setStepError(null)
-            // 這裡可以觸發回到上一步的邏輯
-            // onboardingFlow 是從 useGuidance 來的，無法直接修改
-            // 用戶可以重新調整關鍵字並重新分析
+            // 清除分析結果，允許用戶重新調整關鍵字
+            resetAnalysisResult()
           }}>
             <ChevronLeft className="h-4 w-4 mr-2" />
             重新調整

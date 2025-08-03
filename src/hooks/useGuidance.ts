@@ -296,6 +296,14 @@ export function useGuidance() {
     }))
   }, [])
 
+  // 重置分析結果
+  const resetAnalysisResult = useCallback(() => {
+    setOnboardingFlow(prev => ({
+      ...prev,
+      analysisResult: null
+    }))
+  }, [])
+
   // 初始化數據載入 - 等待認證完成
   useEffect(() => {
     if (authLoading) {
@@ -345,6 +353,7 @@ export function useGuidance() {
     getFocusScore,
     optimizeExistingUser,
     resetOnboarding,
+    resetAnalysisResult,
     
     // 工具方法
     refresh: () => {
