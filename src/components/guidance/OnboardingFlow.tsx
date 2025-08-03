@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Progress } from '@/components/ui/progress'
-import { ColdStartAlert, isColdStartError } from '@/components/ui/cold-start-alert'
+import { ColdStartAlert } from '@/components/ui/cold-start-alert'
 import { useGuidance } from '@/hooks/useGuidance'
 import { 
   ChevronRight, 
@@ -155,7 +155,15 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
       const errorMsg = error instanceof Error ? error.message : '未知錯誤'
       
       // 檢測是否為冷啟動錯誤
-      if (error instanceof Error && isColdStartError(error)) {
+      const isColdStart = error instanceof Error && (
+        error.message.includes('timeout') ||
+        error.message.includes('ECONNREFUSED') ||
+        error.message.includes('fetch failed') ||
+        error.message.includes('ERR_INSUFFICIENT_RESOURCES') ||
+        error.message.includes('Network error')
+      )
+      
+      if (isColdStart) {
         setShowColdStartAlert(true)
         setColdStartRetryCount(prev => prev + 1)
         console.log('🥶 檢測到冷啟動錯誤，顯示等待提示')
