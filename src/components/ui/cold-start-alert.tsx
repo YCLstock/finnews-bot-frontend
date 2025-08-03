@@ -7,7 +7,6 @@ import { Progress } from '@/components/ui/progress'
 import { 
   Clock, 
   RefreshCw, 
-  AlertCircle, 
   Coffee,
   ExternalLink 
 } from 'lucide-react'

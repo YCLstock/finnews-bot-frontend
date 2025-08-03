@@ -151,7 +151,7 @@ export function useGuidance() {
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
     }
-  }, [navigateToStep, resetStepHistory])
+  }, [])
 
   // 選擇投資領域
   const selectInvestmentFocus = useCallback(async (selectedAreas: string[]) => {
@@ -178,7 +178,7 @@ export function useGuidance() {
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
     }
-  }, [navigateToStep])
+  }, [])
 
   // 分析關鍵字
   const analyzeKeywords = useCallback(async (keywords: string[]) => {
@@ -203,7 +203,7 @@ export function useGuidance() {
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
     }
-  }, [navigateToStep])
+  }, [])
 
   // 完成引導流程
   const finalizeOnboarding = useCallback(async (finalKeywords: string[], selectedTopics?: string[]) => {
@@ -234,7 +234,7 @@ export function useGuidance() {
       toast.error(errorMessage)
       return { success: false, error: errorMessage }
     }
-  }, [fetchGuidanceStatus, navigateToStep])
+  }, [fetchGuidanceStatus])
 
   // 獲取優化建議
   const getOptimizationSuggestions = useCallback(async () => {

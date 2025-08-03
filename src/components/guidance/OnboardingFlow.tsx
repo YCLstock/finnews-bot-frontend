@@ -548,7 +548,7 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
                 <p className="text-gray-500">無聚類結果</p>
               )}
               
-              {analysis.clustering_result?.normalized_keywords && (
+              {analysis.clustering_result && (
                 <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
                   <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
                     <strong>智能分組說明：</strong>
@@ -559,7 +559,7 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
                         示例標籤
                       </Badge>
                       <span className="text-gray-600 dark:text-gray-400">
-                        綠色標籤：語義相同的關鍵字已合併（如 "人工智慧" 包含 "AI"、"機器學習"）
+                        綠色標籤：語義相同的關鍵字已合併（如 &quot;人工智慧&quot; 包含 &quot;AI&quot;、&quot;機器學習&quot;）
                       </span>
                     </div>
                     <div className="flex items-center gap-2">

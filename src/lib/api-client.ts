@@ -193,7 +193,7 @@ class ApiClient {
       error.status === 0 || // 網路錯誤
       error.status === 503 || // 服務不可用
       error.status === 504 || // 網關超時
-      (error.message && (
+      (!!error.message && (
         error.message.includes('timeout') ||
         error.message.includes('ECONNREFUSED') ||
         error.message.includes('fetch failed')
