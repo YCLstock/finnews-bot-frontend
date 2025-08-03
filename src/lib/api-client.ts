@@ -178,6 +178,11 @@ class ApiClient {
     
     // 檢測是否是 Render 部署環境
     this.isRenderDeployment = this.baseURL.includes('onrender.com')
+    
+    // 如果使用占位符值，顯示警告
+    if (!process.env.NEXT_PUBLIC_API_URL) {
+      console.warn('⚠️  使用預設 API URL (localhost:8000) - 請設置 NEXT_PUBLIC_API_URL 環境變數')
+    }
   }
 
   private isRenderDeployment: boolean
@@ -225,11 +230,6 @@ class ApiClient {
     }
     
     throw lastError!
-  }
-    // 如果使用占位符值，顯示警告
-    if (!process.env.NEXT_PUBLIC_API_URL) {
-      console.warn('⚠️  使用預設 API URL (localhost:8000) - 請設置 NEXT_PUBLIC_API_URL 環境變數')
-    }
   }
 
   public async request<T>(
