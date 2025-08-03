@@ -192,6 +192,10 @@ interface PlatformInfo {
   cons: string[]
 }
 
+interface PlatformInfoRecord {
+  [key: string]: PlatformInfo
+}
+
 interface ValidationResponse {
   platform: string
   target: string
@@ -522,7 +526,7 @@ class ApiClient {
   // Quick Onboarding API
   quickOnboarding = {
     getTemplates: () => 
-      this.request<{ success: boolean, templates: QuickTemplate[], supported_platforms: string[], platform_info: Record<string, any> }>('/quick-onboarding/templates'),
+      this.request<{ success: boolean, templates: QuickTemplate[], supported_platforms: string[], platform_info: PlatformInfoRecord }>('/quick-onboarding/templates'),
     
     quickSetup: (data: QuickSetupRequest) =>
       this.request<QuickSetupResponse>('/quick-onboarding/setup', {
@@ -576,6 +580,7 @@ export type {
   QuickSetupResponse,
   QuickTemplate,
   PlatformInfo,
+  PlatformInfoRecord,
   ValidationResponse,
   ClusteringAnalysisResponse
 } 

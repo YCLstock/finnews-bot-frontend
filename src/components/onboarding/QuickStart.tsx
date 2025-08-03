@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
   Mail, 
   MessageSquare, 
@@ -95,7 +94,7 @@ export function QuickStart({ onBack, onComplete }: QuickStartProps) {
       const result = await apiClient.quickOnboarding.validateTarget(platform, target)
       setTargetValid(result.is_valid)
       setValidationError(result.error || '')
-    } catch (error) {
+    } catch {
       setTargetValid(false)
       setValidationError('驗證失敗，請稍後重試')
     } finally {

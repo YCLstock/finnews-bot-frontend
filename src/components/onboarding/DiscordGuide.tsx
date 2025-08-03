@@ -12,8 +12,6 @@ import {
   CheckCircle, 
   Info, 
   MessageSquare,
-  Settings,
-  Link,
   ArrowRight,
   PlayCircle,
   Lightbulb
