@@ -121,6 +121,49 @@ export function useGuidance() {
     }
   }, [])
 
+  // 步驟導航方法
+  const navigateToStep = useCallback((step: string, addToHistory: boolean = true) => {
+    setState(prev => {
+      const currentStep = prev.currentStep
+      
+      // 如果需要添加到歷史記錄
+      if (addToHistory && currentStep !== 'none' && currentStep !== step) {
+        setStepHistory(prev => [...prev, currentStep])
+        setCanGoBack(true)
+      }
+      
+      return {
+        ...prev,
+        currentStep: step
+      }
+    })
+  }, [])
+
+  // 返回上一步
+  const goToPreviousStep = useCallback(() => {
+    if (stepHistory.length > 0) {
+      const previousStep = stepHistory[stepHistory.length - 1]
+      const newHistory = stepHistory.slice(0, -1)
+      
+      setStepHistory(newHistory)
+      setCanGoBack(newHistory.length > 0)
+      
+      setState(prev => ({
+        ...prev,
+        currentStep: previousStep
+      }))
+      
+      return true
+    }
+    return false
+  }, [stepHistory])
+
+  // 重置步驟歷史
+  const resetStepHistory = useCallback(() => {
+    setStepHistory([])
+    setCanGoBack(false)
+  }, [])
+
   // 開始引導流程
   const startOnboarding = useCallback(async () => {
     try {
@@ -299,49 +342,6 @@ export function useGuidance() {
       ...prev,
       analysisResult: null
     }))
-  }, [])
-
-  // 步驟導航方法
-  const navigateToStep = useCallback((step: string, addToHistory: boolean = true) => {
-    setState(prev => {
-      const currentStep = prev.currentStep
-      
-      // 如果需要添加到歷史記錄
-      if (addToHistory && currentStep !== 'none' && currentStep !== step) {
-        setStepHistory(prev => [...prev, currentStep])
-        setCanGoBack(true)
-      }
-      
-      return {
-        ...prev,
-        currentStep: step
-      }
-    })
-  }, [])
-
-  // 返回上一步
-  const goToPreviousStep = useCallback(() => {
-    if (stepHistory.length > 0) {
-      const previousStep = stepHistory[stepHistory.length - 1]
-      const newHistory = stepHistory.slice(0, -1)
-      
-      setStepHistory(newHistory)
-      setCanGoBack(newHistory.length > 0)
-      
-      setState(prev => ({
-        ...prev,
-        currentStep: previousStep
-      }))
-      
-      return true
-    }
-    return false
-  }, [stepHistory])
-
-  // 重置步驟歷史
-  const resetStepHistory = useCallback(() => {
-    setStepHistory([])
-    setCanGoBack(false)
   }, [])
 
   // 初始化數據載入 - 等待認證完成
