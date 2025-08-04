@@ -116,7 +116,10 @@ export function useGuidance() {
       return response.data
     } catch (error: unknown) {
       console.error('Failed to fetch investment areas:', error)
-      toast.error('獲取投資領域失敗')
+      // 避免在冷啟動/網路錯誤時顯示錯誤彈窗，因為重試機制可能會成功
+      if (!(error instanceof Error && error.message.includes('Network error'))) {
+        toast.error('獲取投資領域失敗')
+      }
       return []
     }
   }, [])

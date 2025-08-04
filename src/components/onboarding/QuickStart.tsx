@@ -73,7 +73,10 @@ export function QuickStart({ onBack, onComplete }: QuickStartProps) {
         setPlatformInfo(platformRes.platforms || {})
       } catch (error) {
         console.error('Failed to fetch quick start data:', error)
-        toast.error('載入設定選項失敗')
+        // 避免在冷啟動/網路錯誤時顯示錯誤彈窗，因為重試機制可能會成功
+        if (!(error instanceof Error && error.message.includes('Network error'))) {
+          toast.error('載入設定選項失敗')
+        }
       }
     }
     

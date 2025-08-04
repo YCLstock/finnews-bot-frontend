@@ -54,7 +54,9 @@ export default function DashboardPage() {
       setRecentHistory(historyData)
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error)
-      if (error instanceof ApiError && error.status !== 404) {
+      // 避免在冷啟動/網路錯誤時顯示錯誤彈窗，因為重試機制可能會成功
+      if (error instanceof ApiError && error.status !== 404 && 
+          !(error.message && error.message.includes('Network error'))) {
         toast.error('載入數據失敗')
       }
     } finally {
