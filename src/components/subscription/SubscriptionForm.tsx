@@ -147,10 +147,13 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
         message: '連通性測試成功！Discord Webhook 可以正常接收消息'
       })
       toast.success('連通性測試成功！')
-    } catch (_error) {
+    } catch (error) {
+      console.error('Connectivity test failed:', error)
+      const errorMessage = error instanceof Error ? error.message : '連통性測試失敗，請檢查 Webhook URL 是否正確'
+      
       setConnectivityResult({
         success: false,
-        message: '連通性測試失敗，請檢查 Webhook URL 是否正確'
+        message: errorMessage
       })
       toast.error('連通性測試失敗')
     } finally {
