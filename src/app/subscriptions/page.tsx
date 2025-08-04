@@ -91,6 +91,30 @@ export default function SubscriptionsPage() {
     }
   }
 
+  // 獲取平台顯示名稱
+  const getPlatformDisplayName = (platform: string) => {
+    switch (platform) {
+      case 'discord':
+        return 'Discord'
+      case 'email':
+        return 'Email'
+      default:
+        return platform
+    }
+  }
+
+  // 獲取平台目標標籤
+  const getPlatformTargetLabel = (platform: string) => {
+    switch (platform) {
+      case 'discord':
+        return 'Discord Webhook URL'
+      case 'email':
+        return '電子郵件地址'
+      default:
+        return '推送目標'
+    }
+  }
+
   return (
     <ProtectedLayout>
       <div className="p-6 space-y-6">
@@ -164,7 +188,9 @@ export default function SubscriptionsPage() {
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           推送平台
                         </label>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Discord</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {getPlatformDisplayName(subscription?.delivery_platform || '')}
+                        </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -227,10 +253,10 @@ export default function SubscriptionsPage() {
                       </div>
                     )}
 
-                    {/* Webhook URL */}
+                    {/* 推送目標 */}
                     <div>
                       <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Discord Webhook URL
+                        {getPlatformTargetLabel(subscription?.delivery_platform || '')}
                       </label>
                       <p className="text-sm text-gray-600 dark:text-gray-400 font-mono break-all">
                         {subscription?.delivery_target ? 
