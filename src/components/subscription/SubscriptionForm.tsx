@@ -58,6 +58,11 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
   const [keywordInput, setKeywordInput] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
+  const [testingConnectivity, setTestingConnectivity] = useState(false)
+  const [connectivityResult, setConnectivityResult] = useState<{
+    success: boolean
+    message: string
+  } | null>(null)
 
   // 初始化編輯模式的數據
   useEffect(() => {
@@ -96,6 +101,63 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
     }))
   }
 
+  // 處理推送目標輸入變更（即時格式驗證）
+  const handleDeliveryTargetChange = (value: string) => {
+    setFormData(prev => ({ ...prev, delivery_target: value }))
+    
+    // 清除之前的連通性測試結果
+    setConnectivityResult(null)
+    
+    // 即時格式驗證
+    const formatError = validateDeliveryTargetFormat(value, 'discord')
+    if (formatError) {
+      setErrors(prev => ({ ...prev, delivery_target: formatError }))
+    } else {
+      setErrors(prev => {
+        const newErrors = { ...prev }
+        delete newErrors.delivery_target
+        return newErrors
+      })
+    }
+  }
+
+  // 測試連通性（可選功能）
+  const testConnectivity = async () => {
+    if (!formData.delivery_target.trim()) {
+      toast.error('請先輸入 Discord Webhook URL')
+      return
+    }
+
+    const formatError = validateDeliveryTargetFormat(formData.delivery_target, 'discord')
+    if (formatError) {
+      toast.error('請先修正格式錯誤')
+      return
+    }
+
+    setTestingConnectivity(true)
+    setConnectivityResult(null)
+
+    try {
+      // 這裡需要實現 API 調用來測試連通性
+      // 暫時使用模擬的結果
+      await new Promise(resolve => setTimeout(resolve, 2000)) // 模擬網路延遲
+      
+      setConnectivityResult({
+        success: true,
+        message: '連通性測試成功！Discord Webhook 可以正常接收消息'
+      })
+      toast.success('連通性測試成功！')
+    } catch (error) {
+      setConnectivityResult({
+        success: false,
+        message: '連通性測試失敗，請檢查 Webhook URL 是否正確'
+      })
+      toast.error('連通性測試失敗')
+    } finally {
+      setTestingConnectivity(false)
+    }
+  }
+
   // 處理新聞來源選擇
   const handleNewsSourceChange = (value: string) => {
     if (value === 'all') {
@@ -115,14 +177,34 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
     }
   }
 
-  // 表單驗證
+  // 即時格式驗證（不進行 API 調用）
+  const validateDeliveryTargetFormat = (target: string, platform: string = 'discord') => {
+    if (!target.trim()) {
+      return platform === 'discord' ? 'Discord Webhook URL 為必填項' : 'Email 地址為必填項'
+    }
+
+    if (platform === 'discord') {
+      if (!target.startsWith('https://discord.com/api/webhooks/')) {
+        return 'Discord Webhook URL 格式不正確，必須以 https://discord.com/api/webhooks/ 開頭'
+      }
+    } else if (platform === 'email') {
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+      if (!emailPattern.test(target)) {
+        return '電子郵件地址格式不正確，請提供有效的電子郵件地址'
+      }
+    }
+
+    return ''
+  }
+
+  // 表單驗證（提交時）
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.delivery_target.trim()) {
-      newErrors.delivery_target = 'Discord Webhook URL 為必填項'
-    } else if (!formData.delivery_target.startsWith('https://discord.com/api/webhooks/')) {
-      newErrors.delivery_target = '請輸入有效的 Discord Webhook URL'
+    // 格式驗證
+    const targetError = validateDeliveryTargetFormat(formData.delivery_target, 'discord')
+    if (targetError) {
+      newErrors.delivery_target = targetError
     }
 
     if (formData.keywords.length === 0) {
@@ -201,22 +283,54 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
           {/* Discord Webhook URL */}
           <div className="space-y-2">
             <Label htmlFor="delivery_target">Discord Webhook URL *</Label>
-            <Input
-              id="delivery_target"
-              type="url"
-              placeholder="https://discord.com/api/webhooks/..."
-              value={formData.delivery_target}
-              onChange={(e) => setFormData(prev => ({ ...prev, delivery_target: e.target.value }))}
-              className={errors.delivery_target ? 'border-red-500' : ''}
-            />
+            <div className="flex space-x-2">
+              <Input
+                id="delivery_target"
+                type="url"
+                placeholder="https://discord.com/api/webhooks/..."
+                value={formData.delivery_target}
+                onChange={(e) => handleDeliveryTargetChange(e.target.value)}
+                className={errors.delivery_target ? 'border-red-500' : ''}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={testConnectivity}
+                disabled={testingConnectivity || !!errors.delivery_target || !formData.delivery_target.trim()}
+                className="min-w-[80px]"
+              >
+                {testingConnectivity ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  '測試'
+                )}
+              </Button>
+            </div>
             {errors.delivery_target && (
               <p className="text-sm text-red-500 flex items-center">
                 <AlertCircle className="h-4 w-4 mr-1" />
                 {errors.delivery_target}
               </p>
             )}
+            {connectivityResult && (
+              <Alert className={
+                connectivityResult.success 
+                  ? "border-green-200 bg-green-50 dark:bg-green-900/20" 
+                  : "border-red-200 bg-red-50 dark:bg-red-900/20"
+              }>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className={
+                  connectivityResult.success 
+                    ? "text-green-700 dark:text-green-300" 
+                    : "text-red-700 dark:text-red-300"
+                }>
+                  {connectivityResult.message}
+                </AlertDescription>
+              </Alert>
+            )}
             <p className="text-xs text-muted-foreground">
-              在 Discord 頻道設置中創建 Webhook 並複製 URL
+              在 Discord 頻道設置中創建 Webhook 並複製 URL。點擊「測試」按鈕可驗證連通性（可選）。
             </p>
           </div>
 

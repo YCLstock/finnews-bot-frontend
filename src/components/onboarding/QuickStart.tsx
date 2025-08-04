@@ -57,7 +57,6 @@ export function QuickStart({ onBack, onComplete }: QuickStartProps) {
   const [loading, setLoading] = useState(false)
   const [templates, setTemplates] = useState<QuickTemplate[]>([])
   const [platformInfo, setPlatformInfo] = useState<Record<string, PlatformInfo>>({})
-  const [validationLoading, setValidationLoading] = useState(false)
   const [targetValid, setTargetValid] = useState<boolean | null>(null)
   const [validationError, setValidationError] = useState('')
 
@@ -81,54 +80,31 @@ export function QuickStart({ onBack, onComplete }: QuickStartProps) {
     fetchData()
   }, [])
 
-  // 驗證推送目標
-  const validateTarget = async (platform: string, target: string) => {
+  // 即時格式驗證（不進行 API 調用）
+  const validateTargetFormat = (platform: string, target: string) => {
     if (!target.trim()) {
-      setTargetValid(null)
-      setValidationError('')
-      return
+      return { isValid: null, error: '' }
     }
 
-    setValidationLoading(true)
-    try {
-      const result = await apiClient.quickOnboarding.validateTarget(platform, target)
-      setTargetValid(result.is_valid)
-      setValidationError(result.error || '')
-      
-      // 記錄詳細的驗證資訊用於調試
-      if (result.analysis_details) {
-        console.log('📊 驗證詳情:', result.analysis_details)
+    if (platform === 'email') {
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+      if (!emailPattern.test(target)) {
+        return { isValid: false, error: '電子郵件地址格式不正確，請提供有效的電子郵件地址' }
       }
-    } catch (error) {
-      console.error('❌ 驗證請求錯誤:', error)
-      setTargetValid(false)
-      
-      // 提供更具體的錯誤信息
-      if (error instanceof Error) {
-        if (error.message.includes('timeout') || error.message.includes('ERR_INSUFFICIENT_RESOURCES')) {
-          setValidationError('伺服器連接超時，請稍後重試')
-        } else if (error.message.includes('Network')) {
-          setValidationError('網路連線問題，請檢查您的網路連線')
-        } else {
-          setValidationError('驗證失敗，請稍後重試')
-        }
-      } else {
-        setValidationError('驗證失敗，請稍後重試')
+    } else if (platform === 'discord') {
+      if (!target.startsWith('https://discord.com/api/webhooks/')) {
+        return { isValid: false, error: 'Discord Webhook URL 格式不正確，必須以 https://discord.com/api/webhooks/ 開頭' }
       }
-    } finally {
-      setValidationLoading(false)
     }
+
+    return { isValid: true, error: '' }
   }
 
-  // 處理推送目標變更
+  // 處理推送目標變更（僅格式驗證）
   useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      if (deliveryTarget) {
-        validateTarget(deliveryPlatform, deliveryTarget)
-      }
-    }, 500)
-
-    return () => clearTimeout(debounceTimer)
+    const validation = validateTargetFormat(deliveryPlatform, deliveryTarget)
+    setTargetValid(validation.isValid)
+    setValidationError(validation.error)
   }, [deliveryTarget, deliveryPlatform])
 
   const handleSubmit = async () => {
@@ -325,14 +301,6 @@ export function QuickStart({ onBack, onComplete }: QuickStartProps) {
                   targetValid === true ? 'border-green-500 focus:border-green-500' : ''
                 }`}
               />
-              
-              {/* 驗證狀態 */}
-              {validationLoading && (
-                <div className="flex items-center mt-2 text-sm text-gray-600">
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  驗證中...
-                </div>
-              )}
               
               {targetValid === true && (
                 <div className="flex items-center mt-2 text-sm text-green-600">
