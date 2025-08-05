@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Progress } from '@/components/ui/progress'
 import { ColdStartAlert } from '@/components/ui/cold-start-alert'
@@ -18,11 +16,11 @@ import {
   CheckCircle, 
   AlertCircle,
   Loader2,
-  Plus,
-  X,
-  Sparkles
+  Sparkles,
+  X
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { KeywordInput } from '@/components/ui/keyword-input'
 
 interface OnboardingFlowProps {
   onComplete?: () => void
@@ -54,8 +52,6 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
   } = useGuidance()
 
   const [selectedAreas, setSelectedAreas] = useState<string[]>([])
-  const [keywordInput, setKeywordInput] = useState('')
-  const [customKeywords, setCustomKeywords] = useState<string[]>([])
   const [stepLoading, setStepLoading] = useState(false)
   const [stepError, setStepError] = useState<string | null>(null)
   const [showColdStartAlert, setShowColdStartAlert] = useState(false)
@@ -176,46 +172,6 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
     } finally {
       setStepLoading(false)
     }
-  }
-
-  // 添加關鍵字
-  const addKeyword = () => {
-    const keyword = keywordInput.trim()
-    
-    if (!keyword) {
-      toast.error('請輸入關鍵字')
-      return
-    }
-    
-    if (keyword.length < 2) {
-      toast.error('關鍵字至少需要 2 個字符')
-      return
-    }
-    
-    if (keyword.length > 20) {
-      toast.error('關鍵字不能超過 20 個字符')
-      return
-    }
-    
-    if (customKeywords.includes(keyword)) {
-      toast.error('關鍵字已存在')
-      return
-    }
-    
-    if (customKeywords.length >= 10) {
-      toast.error('最多只能添加 10 個關鍵字')
-      return
-    }
-    
-    setCustomKeywords(prev => [...prev, keyword])
-    setKeywordInput('')
-    setStepError(null) // 清除之前的錯誤
-    toast.success(`已添加關鍵字：${keyword}`)
-  }
-
-  // 移除關鍵字
-  const removeKeyword = (keyword: string) => {
-    setCustomKeywords(prev => prev.filter(k => k !== keyword))
   }
 
   // 冷啟動重試
@@ -348,7 +304,7 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
       </div>
 
       {onboardingFlow.baseKeywords.length > 0 && (
-        <Alert>
+        <Alert variant="info">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             <strong>推薦關鍵字：</strong>
@@ -357,43 +313,12 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
         </Alert>
       )}
 
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="keyword-input">添加關鍵字</Label>
-          <div className="flex space-x-2 mt-2">
-            <Input
-              id="keyword-input"
-              placeholder="輸入關鍵字，例如：台積電、特斯拉"
-              value={keywordInput}
-              onChange={(e) => setKeywordInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addKeyword())}
-            />
-            <Button type="button" onClick={addKeyword} size="sm">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {customKeywords.length > 0 && (
-          <div>
-            <Label>您的關鍵字 ({customKeywords.length}/10)</Label>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {customKeywords.map((keyword, index) => (
-                <Badge key={index} variant="secondary" className="flex items-center space-x-1">
-                  <span>{keyword}</span>
-                  <button
-                    type="button"
-                    onClick={() => removeKeyword(keyword)}
-                    className="ml-1 hover:bg-red-100 rounded-full p-0.5"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+      <KeywordInput
+        label="您的關鍵字 (最多10個)"
+        value={customKeywords}
+        onChange={setCustomKeywords}
+        placeholder="輸入關鍵字，例如：台積電、特斯拉"
+      />
 
       <div className="flex justify-between">
         <Button 
@@ -495,10 +420,10 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
           </CardHeader>
           <CardContent>
             <Progress value={focusScore * 100} className="mb-4" />
-            <Alert className={
-              focusScore >= 0.7 ? "border-green-200 bg-green-50 dark:bg-green-900/20" :
-              focusScore >= 0.5 ? "border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20" :
-              "border-red-200 bg-red-50 dark:bg-red-900/20"
+            <Alert variant={
+              focusScore >= 0.7 ? "success" :
+              focusScore >= 0.5 ? "warning" :
+              "destructive"
             }>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
@@ -681,9 +606,9 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
         
         {/* 其他錯誤提示 */}
         {stepError && !showColdStartAlert && (
-          <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20 mt-4">
-            <AlertCircle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-700 dark:text-red-300">
+          <Alert variant="destructive" className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
               {stepError}
             </AlertDescription>
           </Alert>

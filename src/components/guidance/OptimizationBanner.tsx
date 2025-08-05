@@ -174,27 +174,27 @@ export function OptimizationBanner({
 export function OptimizationHint({ focusScore }: { focusScore: number }) {
   if (focusScore >= 0.7) {
     return (
-      <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
-        <AlertCircle className="h-4 w-4 text-green-600" />
-        <AlertDescription className="text-green-700 dark:text-green-300">
+      <Alert variant="success">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
           <strong>設定優秀！</strong> 您的關鍵字聚焦度很高 ({Math.round(focusScore * 100)}%)，將獲得精準的新聞推送。
         </AlertDescription>
       </Alert>
     )
   } else if (focusScore >= 0.5) {
     return (
-      <Alert className="border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20">
-        <AlertCircle className="h-4 w-4 text-yellow-600" />
-        <AlertDescription className="text-yellow-700 dark:text-yellow-300">
+      <Alert variant="warning">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
           <strong>可以優化：</strong> 您的聚焦度為 {Math.round(focusScore * 100)}%，考慮精簡關鍵字以獲得更精準的推送。
         </AlertDescription>
       </Alert>
     )
   } else {
     return (
-      <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20">
-        <AlertCircle className="h-4 w-4 text-red-600" />
-        <AlertDescription className="text-red-700 dark:text-red-300">
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
           <strong>建議優化：</strong> 您的聚焦度較低 ({Math.round(focusScore * 100)}%)，建議重新設定關鍵字以提升推送相關性。
         </AlertDescription>
       </Alert>

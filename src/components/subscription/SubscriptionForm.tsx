@@ -6,12 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useSubscription } from '@/hooks/useSubscription'
 import type { SubscriptionCreateRequest, SubscriptionUpdateRequest } from '@/lib/api-client'
-import { X, Plus, AlertCircle, Loader2 } from 'lucide-react'
+import { AlertCircle, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { isValidDiscordWebhookUrl } from '@/lib/utils'
+import { KeywordInput } from '@/components/ui/keyword-input'
 
 interface SubscriptionFormProps {
   mode: 'create' | 'edit'
@@ -55,7 +56,6 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
     push_frequency_type: 'daily' as 'daily' | 'twice' | 'thrice'
   })
 
-  const [keywordInput, setKeywordInput] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
   const [testingConnectivity, setTestingConnectivity] = useState(false)
@@ -76,30 +76,6 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
       })
     }
   }, [mode, subscription])
-
-  // 添加關鍵字
-  const addKeyword = () => {
-    const keyword = keywordInput.trim()
-    if (keyword && !formData.keywords.includes(keyword)) {
-      if (formData.keywords.length >= 10) {
-        toast.error('最多只能添加 10 個關鍵字')
-        return
-      }
-      setFormData(prev => ({
-        ...prev,
-        keywords: [...prev.keywords, keyword]
-      }))
-      setKeywordInput('')
-    }
-  }
-
-  // 移除關鍵字
-  const removeKeyword = (keyword: string) => {
-    setFormData(prev => ({
-      ...prev,
-      keywords: prev.keywords.filter(k => k !== keyword)
-    }))
-  }
 
   // 處理推送目標輸入變更（即時格式驗證）
   const handleDeliveryTargetChange = (value: string) => {
@@ -187,7 +163,7 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
     }
 
     if (platform === 'discord') {
-      if (!target.startsWith('https://discord.com/api/webhooks/')) {
+      if (!isValidDiscordWebhookUrl(target)) {
         return 'Discord Webhook URL 格式不正確，必須以 https://discord.com/api/webhooks/ 開頭'
       }
     } else if (platform === 'email') {
@@ -317,17 +293,9 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
               </p>
             )}
             {connectivityResult && (
-              <Alert className={
-                connectivityResult.success 
-                  ? "border-green-200 bg-green-50 dark:bg-green-900/20" 
-                  : "border-red-200 bg-red-50 dark:bg-red-900/20"
-              }>
+              <Alert variant={connectivityResult.success ? 'success' : 'destructive'}>
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription className={
-                  connectivityResult.success 
-                    ? "text-green-700 dark:text-green-300" 
-                    : "text-red-700 dark:text-red-300"
-                }>
+                <AlertDescription>
                   {connectivityResult.message}
                 </AlertDescription>
               </Alert>
@@ -339,39 +307,19 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
 
           {/* 關鍵字 */}
           <div className="space-y-2">
-            <Label htmlFor="keywords">關鍵字 *</Label>
-            <div className="flex space-x-2">
-              <Input
-                id="keywords"
-                placeholder="輸入關鍵字，例如：台積電、聯發科"
-                value={keywordInput}
-                onChange={(e) => setKeywordInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addKeyword())}
-                className={errors.keywords ? 'border-red-500' : ''}
-              />
-              <Button type="button" onClick={addKeyword} size="sm">
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            {/* 關鍵字標籤 */}
-            {formData.keywords.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {formData.keywords.map((keyword, index) => (
-                  <Badge key={index} variant="secondary" className="flex items-center space-x-1">
-                    <span>{keyword}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeKeyword(keyword)}
-                      className="ml-1 hover:bg-red-100 rounded-full p-0.5"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            )}
-            
+            <KeywordInput
+              label="關鍵字 *"
+              value={formData.keywords}
+              onChange={(keywords) => {
+                setFormData(prev => ({ ...prev, keywords }))
+                if (errors.keywords && keywords.length > 0) {
+                  const newErrors = { ...errors }
+                  delete newErrors.keywords
+                  setErrors(newErrors)
+                }
+              }}
+              placeholder="輸入關鍵字，例如：台積電、聯發科"
+            />
             {errors.keywords && (
               <p className="text-sm text-red-500 flex items-center">
                 <AlertCircle className="h-4 w-4 mr-1" />
@@ -523,4 +471,4 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
       </CardContent>
     </Card>
   )
-} 
+}

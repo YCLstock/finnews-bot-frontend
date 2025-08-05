@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { Sidebar } from './Sidebar'
+import { LoadingIndicator } from '@/components/ui/loading-indicator'
 
 interface ProtectedLayoutProps {
   children: React.ReactNode
@@ -25,14 +26,7 @@ export function ProtectedLayout({ children, className }: ProtectedLayoutProps) {
 
   // 顯示載入狀態
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">載入中...</p>
-        </div>
-      </div>
-    )
+    return <LoadingIndicator />
   }
 
   // 未認證時返回空內容（重定向中）

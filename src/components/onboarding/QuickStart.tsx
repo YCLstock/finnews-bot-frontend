@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
 import { toast } from 'sonner'
+import { isValidDiscordWebhookUrl, isValidEmail } from '@/lib/utils'
 
 interface QuickStartProps {
   onBack: () => void
@@ -90,12 +91,11 @@ export function QuickStart({ onBack, onComplete }: QuickStartProps) {
     }
 
     if (platform === 'email') {
-      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-      if (!emailPattern.test(target)) {
+      if (!isValidEmail(target)) {
         return { isValid: false, error: '電子郵件地址格式不正確，請提供有效的電子郵件地址' }
       }
     } else if (platform === 'discord') {
-      if (!target.startsWith('https://discord.com/api/webhooks/')) {
+      if (!isValidDiscordWebhookUrl(target)) {
         return { isValid: false, error: 'Discord Webhook URL 格式不正確，必須以 https://discord.com/api/webhooks/ 開頭' }
       }
     }
