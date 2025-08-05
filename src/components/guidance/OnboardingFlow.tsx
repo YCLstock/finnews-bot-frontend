@@ -52,6 +52,7 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
   } = useGuidance()
 
   const [selectedAreas, setSelectedAreas] = useState<string[]>([])
+  const [customKeywords, setCustomKeywords] = useState<string[]>([])
   const [stepLoading, setStepLoading] = useState(false)
   const [stepError, setStepError] = useState<string | null>(null)
   const [showColdStartAlert, setShowColdStartAlert] = useState(false)
@@ -71,16 +72,6 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
       startOnboarding()
     }
   }, [currentStep, startOnboarding])
-
-  // 同步引導流程狀態
-  useEffect(() => {
-    if (onboardingFlow.selectedAreas.length > 0) {
-      setSelectedAreas([...onboardingFlow.selectedAreas])
-    }
-    if (onboardingFlow.baseKeywords.length > 0) {
-      setCustomKeywords([...onboardingFlow.baseKeywords])
-    }
-  }, [onboardingFlow.baseKeywords, onboardingFlow.selectedAreas])
 
   // 處理投資領域選擇
   const handleAreaSelection = (areaCode: string) => {
