@@ -70,30 +70,32 @@ export function Sidebar({ className }: SidebarProps) {
 
   return (
     <div className={cn(
-      "flex flex-col h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800",
+      "flex flex-col h-full bg-sidebar/50 backdrop-blur-xl border-r border-sidebar-border/50",
       isCollapsed ? "w-16" : "w-64",
       className
     )}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+      <div className="flex items-center justify-between p-6 border-b border-sidebar-border/30">
         {!isCollapsed && (
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="h-6 w-6 text-primary" />
-            <span className="font-bold text-lg">FinNews-Bot</span>
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <TrendingUp className="h-5 w-5 text-primary" />
+            </div>
+            <span className="font-medium text-lg tracking-tight">FinNews-Bot</span>
           </div>
         )}
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2"
+          className="h-8 w-8 rounded-lg hover:bg-sidebar-accent/50"
         >
           {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
         </Button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-1">
         {navigation.map((item) => {
           const isActive = pathname === item.href
           const Icon = item.icon
@@ -102,34 +104,41 @@ export function Sidebar({ className }: SidebarProps) {
           return (
             <Link key={item.name} href={item.href}>
               <div className={cn(
-                "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                "group flex items-center space-x-3 px-3 py-3 rounded-xl text-sm transition-all duration-200",
                 isActive 
-                  ? "bg-primary text-primary-foreground" 
+                  ? "bg-primary/15 text-primary border border-primary/20 shadow-sm" 
                   : isComingSoon
-                    ? "text-gray-400 dark:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-900 cursor-default"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    ? "text-muted-foreground hover:bg-sidebar-accent/30 cursor-default"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:shadow-sm"
               )}>
-                <Icon className={cn(
-                  "h-5 w-5", 
-                  isCollapsed ? "mx-auto" : "",
-                  isComingSoon ? "text-gray-400" : ""
-                )} />
+                <div className={cn(
+                  "flex-shrink-0 p-1.5 rounded-lg transition-colors",
+                  isActive ? "bg-primary/20" : "group-hover:bg-sidebar-accent/50",
+                  isCollapsed ? "mx-auto" : ""
+                )}>
+                  <Icon className={cn(
+                    "h-4 w-4",
+                    isActive ? "text-primary" : isComingSoon ? "text-muted-foreground" : "text-sidebar-foreground"
+                  )} />
+                </div>
                 {!isCollapsed && (
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className={isComingSoon ? "text-gray-400" : ""}>
+                      <span className={cn(
+                        "font-medium truncate",
+                        isActive ? "text-primary" : isComingSoon ? "text-muted-foreground" : "text-sidebar-foreground"
+                      )}>
                         {item.name}
                       </span>
-                      {isActive && <Badge variant="secondary" className="ml-2">當前</Badge>}
                       {isComingSoon && (
-                        <Badge variant="outline" className="ml-2 bg-yellow-50 text-yellow-700 border-yellow-200 text-xs">
+                        <Badge variant="outline" className="ml-2 bg-muted/50 text-muted-foreground border-border/50 text-xs px-2 py-0.5">
                           即將推出
                         </Badge>
                       )}
                     </div>
                     <p className={cn(
-                      "text-xs mt-1",
-                      isComingSoon ? "text-gray-400" : "text-muted-foreground"
+                      "text-xs mt-0.5 truncate",
+                      isActive ? "text-primary/70" : "text-muted-foreground"
                     )}>
                       {item.description}
                     </p>
@@ -142,9 +151,9 @@ export function Sidebar({ className }: SidebarProps) {
       </nav>
 
       {/* User Info & Logout */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+      <div className="p-4 border-t border-sidebar-border/30">
         {!isCollapsed && user && (
-          <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <div className="mb-4 p-3 bg-sidebar-accent/30 rounded-xl border border-sidebar-border/20">
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0">
                 {user.user_metadata?.avatar_url ? (
@@ -153,23 +162,23 @@ export function Sidebar({ className }: SidebarProps) {
                     alt="頭像"
                     width={32}
                     height={32}
-                    className="h-8 w-8 rounded-full"
+                    className="h-8 w-8 rounded-full ring-2 ring-primary/20"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement
                       target.style.display = 'none'
                     }}
                   />
                 ) : (
-                  <div className="h-8 w-8 bg-primary rounded-full flex items-center justify-center">
-                    <User className="h-4 w-4 text-primary-foreground" />
+                  <div className="h-8 w-8 bg-primary/20 rounded-full flex items-center justify-center ring-2 ring-primary/20">
+                    <User className="h-4 w-4 text-primary" />
                   </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                <p className="text-sm font-medium text-sidebar-foreground truncate">
                   {user.user_metadata?.full_name || user.email}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                <p className="text-xs text-muted-foreground truncate">
                   {user.email}
                 </p>
               </div>
@@ -181,7 +190,7 @@ export function Sidebar({ className }: SidebarProps) {
           onClick={handleSignOut}
           variant="outline"
           className={cn(
-            "w-full",
+            "w-full rounded-xl border-sidebar-border/50 hover:bg-sidebar-accent/50 hover:border-sidebar-border transition-all duration-200",
             isCollapsed ? "px-2" : "justify-start"
           )}
         >

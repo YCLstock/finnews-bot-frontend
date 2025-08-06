@@ -60,41 +60,47 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="w-full max-w-lg space-y-8">
         {/* 標題區域 */}
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-center space-x-2">
-            <TrendingUp className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold">FinNews-Bot 2.0</h1>
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center space-x-3">
+            <div className="p-3 bg-primary/10 rounded-2xl">
+              <TrendingUp className="h-8 w-8 text-primary" />
+            </div>
+            <div className="text-left">
+              <h1 className="text-3xl font-medium tracking-tight">FinNews-Bot</h1>
+              <p className="text-sm text-muted-foreground">2.0</p>
+            </div>
           </div>
-          <p className="text-muted-foreground">
-            自動化財經新聞摘要推送系統
+          <p className="text-muted-foreground leading-relaxed max-w-sm mx-auto">
+            自動化財經新聞摘要推送系統 — 透過 AI 為您篩選和摘要最重要的財經資訊
           </p>
         </div>
 
         {/* 登入卡片 */}
-        <Card className="shadow-lg border-0 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-          <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-xl">歡迎使用</CardTitle>
-            <CardDescription>
-              使用 Google 帳號快速登入，開始您的財經資訊之旅
+        <Card className="shadow-lg border-border/40 bg-card/90 backdrop-blur-xl">
+          <CardHeader className="space-y-2 text-center pb-6">
+            <CardTitle className="text-2xl">歡迎使用</CardTitle>
+            <CardDescription className="text-base leading-relaxed">
+              使用 Google 帳號快速登入，開始您的個人化財經資訊體驗
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <Button
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full h-11 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 shadow-sm"
+              className="w-full h-12 bg-background hover:bg-accent/30 text-foreground border border-border/60 shadow-sm hover:shadow-md"
               variant="outline"
+              size="lg"
             >
               {isLoading ? (
-                <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-                  <span>登入中...</span>
+                <div className="flex items-center space-x-3">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
+                  <span className="font-medium">登入中...</span>
                 </div>
               ) : (
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   <svg className="h-5 w-5" viewBox="0 0 24 24">
                     <path
                       fill="currentColor"
@@ -113,34 +119,45 @@ function LoginContent() {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  <span>使用 Google 帳號登入</span>
+                  <span className="font-medium">使用 Google 帳號登入</span>
                 </div>
               )}
             </Button>
 
             {/* 功能說明 */}
-            <div className="text-center text-sm text-muted-foreground">
-              <p>登入後您可以：</p>
-              <ul className="mt-2 space-y-1 text-xs">
-                <li>• 設置個人化的財經新聞關鍵字</li>
-                <li>• 選擇推送頻率和時間</li>
-                <li>• 查看推送歷史和統計</li>
-                <li>• 獲得 AI 精準摘要的新聞內容</li>
-              </ul>
+            <div className="text-center space-y-4">
+              <p className="text-muted-foreground text-sm font-medium">登入後您可以享受：</p>
+              <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
+                <div className="flex items-center space-x-2 p-3 bg-accent/20 rounded-xl">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span>個人化關鍵字設定</span>
+                </div>
+                <div className="flex items-center space-x-2 p-3 bg-accent/20 rounded-xl">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span>智能推送頻率控制</span>
+                </div>
+                <div className="flex items-center space-x-2 p-3 bg-accent/20 rounded-xl">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span>完整推送歷史記錄</span>
+                </div>
+                <div className="flex items-center space-x-2 p-3 bg-accent/20 rounded-xl">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span>AI 精準新聞摘要</span>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
         {/* 隱私說明 */}
-        <div className="text-center text-xs text-muted-foreground">
-          <div className="flex items-center justify-center space-x-1 mb-2">
-            <AlertCircle className="h-3 w-3" />
-            <span>隱私保護</span>
+        <div className="text-center">
+          <div className="inline-flex items-center space-x-2 px-4 py-2 bg-accent/20 rounded-2xl">
+            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">隱私保護承諾</span>
           </div>
-          <p>
-            我們僅使用您的 Google 帳號進行身份驗證，不會存取您的個人資料。
-            <br />
-            您的訂閱設置和偏好將安全儲存在我們的系統中。
+          <p className="text-xs text-muted-foreground leading-relaxed mt-3 max-w-md mx-auto">
+            我們僅使用您的 Google 帳號進行安全身份驗證，絕不存取您的個人資料。
+            您的訂閱設置和偏好將經過加密安全儲存。
           </p>
         </div>
       </div>

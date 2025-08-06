@@ -35,14 +35,14 @@ export function ProtectedLayout({ children, className }: ProtectedLayoutProps) {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex h-screen bg-background">
       {/* 側邊欄 */}
       <Sidebar />
       
       {/* 主內容區域 */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* 主內容 */}
-        <main className={`flex-1 overflow-y-auto ${className || ''}`}>
+        <main className={`flex-1 overflow-y-auto bg-background ${className || ''}`}>
           {children}
         </main>
       </div>
