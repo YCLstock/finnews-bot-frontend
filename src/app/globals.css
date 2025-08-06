@@ -182,6 +182,11 @@
   
   /* 響應式調整 */
   @media (max-width: 768px) {
+    body {
+      font-size: 16px; /* 確保行動裝置最小字體為 16px，避免縮放 */
+      line-height: 1.6;
+    }
+    
     h1 {
       @apply text-2xl;
       margin-bottom: 0.75rem;
@@ -195,11 +200,25 @@
       margin-bottom: 0.5rem;
     }
     
+    p {
+      line-height: 1.6; /* 行動裝置更好的行高 */
+      margin-bottom: 1rem;
+    }
+    
     .space-y-comfortable > * + * {
       margin-top: 1rem;
     }
     .space-y-cozy > * + * {
       margin-top: 0.75rem;
+    }
+    
+    /* 行動裝置文字可讀性優化 */
+    small, .text-xs {
+      font-size: 0.875rem !important; /* 14px，避免過小 */
+    }
+    
+    .text-sm {
+      font-size: 0.9375rem !important; /* 15px */
     }
   }
   
@@ -207,6 +226,38 @@
   @media (hover: none) and (pointer: coarse) {
     button, [role="button"], input, select, textarea {
       min-height: 44px; /* Apple 建議的最小點擊區域 */
+    }
+    
+    /* 增加點擊區域的視覺回饋 */
+    button:active, [role="button"]:active {
+      transform: scale(0.98);
+      transition: transform 0.1s ease-in-out;
+    }
+    
+    /* 改善滾動體驗 */
+    * {
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+  
+  /* 行動裝置專用樣式 */
+  @media (max-width: 768px) {
+    /* 改善卡片間距 */
+    .card-mobile-spacing {
+      margin: 0.75rem 0;
+    }
+    
+    /* 行動裝置按鈕群組 */
+    .mobile-button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .mobile-button-group > button,
+    .mobile-button-group > a {
+      flex: 1;
+      min-height: 48px;
     }
   }
 }

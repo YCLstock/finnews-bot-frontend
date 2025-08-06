@@ -117,32 +117,33 @@ export default function SubscriptionsPage() {
 
   return (
     <ProtectedLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-4 md:p-6 space-y-4 md:space-y-6">
         {/* 頁面標題 */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
               訂閱管理
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
               {hasSubscription 
                 ? '管理您的財經新聞訂閱設置' 
                 : '創建您的第一個財經新聞訂閱'
               }
             </p>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 w-full sm:w-auto">
             <Button
               onClick={refresh}
               disabled={loading}
               variant="outline"
               size="sm"
+              className="flex-1 sm:flex-initial h-10"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               刷新
             </Button>
             {hasSubscription && (
-              <Button onClick={handleEditSubscription}>
+              <Button onClick={handleEditSubscription} className="flex-1 sm:flex-initial h-10">
                 <Edit3 className="h-4 w-4 mr-2" />
                 編輯訂閱
               </Button>
@@ -183,7 +184,7 @@ export default function SubscriptionsPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* 基本信息 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       <div>
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           推送平台
@@ -267,11 +268,12 @@ export default function SubscriptionsPage() {
                     </div>
 
                     {/* 操作按鈕 */}
-                    <div className="flex space-x-3 pt-4 border-t">
+                    <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
                       <Button
                         onClick={handleToggleSubscription}
                         disabled={actionLoading === 'toggle'}
                         variant={subscription?.is_active ? "outline" : "default"}
+                        className="h-11 sm:h-10 flex-1 sm:flex-initial"
                       >
                         {actionLoading === 'toggle' ? (
                           <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
@@ -286,6 +288,7 @@ export default function SubscriptionsPage() {
                       <Button
                         onClick={handleEditSubscription}
                         variant="outline"
+                        className="h-11 sm:h-10 flex-1 sm:flex-initial"
                       >
                         <Edit3 className="h-4 w-4 mr-2" />
                         編輯設置
@@ -295,6 +298,7 @@ export default function SubscriptionsPage() {
                         onClick={handleDeleteSubscription}
                         disabled={actionLoading === 'delete'}
                         variant="destructive"
+                        className="h-11 sm:h-10 flex-1 sm:flex-initial"
                       >
                         {actionLoading === 'delete' ? (
                           <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
@@ -321,16 +325,16 @@ export default function SubscriptionsPage() {
             ) : (
               /* 無訂閱狀態 */
               <Card className="border-dashed border-2 border-gray-300 dark:border-gray-600">
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <Settings className="h-12 w-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                <CardContent className="flex flex-col items-center justify-center py-8 md:py-12 px-4">
+                  <Settings className="h-10 w-10 md:h-12 md:w-12 text-gray-400 mb-4" />
+                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-2 text-center">
                     尚未設置訂閱
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-center mb-4 max-w-md">
+                  <p className="text-gray-600 dark:text-gray-400 text-center mb-6 md:mb-4 max-w-md text-sm md:text-base leading-relaxed">
                     創建您的第一個財經新聞訂閱，設置關鍵字和推送偏好，
                     開始接收個人化的 AI 摘要推送。
                   </p>
-                  <Button onClick={handleCreateSubscription}>
+                  <Button onClick={handleCreateSubscription} className="h-12 px-6 text-base">
                     <Plus className="h-4 w-4 mr-2" />
                     創建訂閱
                   </Button>

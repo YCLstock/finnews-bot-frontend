@@ -98,24 +98,24 @@ export default function DashboardPage() {
 
   return (
     <ProtectedLayout>
-      <div className="p-8 space-y-8 max-w-7xl mx-auto">
+      <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-7xl mx-auto">
         {/* 頁面標題 */}
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-medium tracking-tight">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+          <div className="space-y-1 md:space-y-2">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-medium tracking-tight">
               儀表板
             </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
               歡迎回來，{user?.user_metadata?.full_name || user?.email?.split('@')[0]}
             </p>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 w-full sm:w-auto">
             <Button
               onClick={handleRefresh}
               disabled={refreshing}
               variant="outline"
               size="default"
-              className="rounded-xl"
+              className="rounded-xl flex-1 sm:flex-initial h-11 md:h-10"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               刷新數據
@@ -126,24 +126,24 @@ export default function DashboardPage() {
         {/* 引導橫幅 */}
         <OptimizationBanner 
           onStartOptimization={() => router.push('/guidance')}
-          className="mb-8"
+          className="mb-6 md:mb-8"
         />
 
         {/* 訂閱狀態區域 */}
         {!hasSubscription ? (
           <Card className="border-dashed border-2 border-border/50 bg-accent/10">
-            <CardContent className="flex flex-col items-center justify-center py-16 px-8">
-              <div className="p-4 bg-primary/10 rounded-3xl mb-6">
-                <TrendingUp className="h-12 w-12 text-primary" />
+            <CardContent className="flex flex-col items-center justify-center py-12 md:py-16 px-4 md:px-8">
+              <div className="p-3 md:p-4 bg-primary/10 rounded-3xl mb-4 md:mb-6">
+                <TrendingUp className="h-10 w-10 md:h-12 md:w-12 text-primary" />
               </div>
-              <h3 className="text-2xl font-medium mb-3 text-center">
+              <h3 className="text-xl md:text-2xl font-medium mb-2 md:mb-3 text-center">
                 開始您的財經資訊之旅
               </h3>
-              <p className="text-muted-foreground text-center mb-8 max-w-md leading-relaxed">
+              <p className="text-muted-foreground text-center mb-6 md:mb-8 max-w-md leading-relaxed text-sm md:text-base">
                 設置您的財經新聞訂閱，讓 AI 為您篩選和摘要最重要的市場資訊
               </p>
               <Link href="/subscriptions">
-                <Button size="lg" className="rounded-xl">
+                <Button size="lg" className="rounded-xl h-12 px-6 text-base">
                   <Plus className="h-5 w-5 mr-2" />
                   創建訂閱
                 </Button>
@@ -153,7 +153,7 @@ export default function DashboardPage() {
         ) : (
           <>
             {/* 統計卡片 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               <StatCard
                 title="訂閱狀態"
                 value={subscription?.is_active ? "已啟用" : "已停用"}
@@ -194,7 +194,7 @@ export default function DashboardPage() {
             </div>
 
             {/* 訂閱詳情卡片 */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8">
               {/* 訂閱配置 */}
               <Card>
                 <CardHeader>
@@ -209,9 +209,9 @@ export default function DashboardPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center justify-between p-4 bg-accent/20 rounded-xl">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-accent/20 rounded-xl gap-3 sm:gap-0">
                     <span className="font-medium">狀態</span>
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3 w-full sm:w-auto">
                       <Badge 
                         variant={subscription?.is_active ? "default" : "secondary"}
                         className="px-3 py-1"
@@ -222,7 +222,7 @@ export default function DashboardPage() {
                         onClick={handleToggleSubscription}
                         size="sm"
                         variant="outline"
-                        className="rounded-lg"
+                        className="rounded-lg flex-1 sm:flex-initial"
                       >
                         {subscription?.is_active ? "停用" : "啟用"}
                       </Button>
@@ -230,21 +230,21 @@ export default function DashboardPage() {
                   </div>
                   
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between py-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-2 sm:gap-0">
                       <span className="font-medium">推送頻率</span>
-                      <span className="text-muted-foreground">
+                      <span className="text-muted-foreground text-sm sm:text-base">
                         {getFrequencyText(subscription?.push_frequency_type || '')}
                       </span>
                     </div>
                     
-                    <div className="flex items-center justify-between py-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-2 sm:gap-0">
                       <span className="font-medium">推送平台</span>
-                      <span className="text-muted-foreground">Discord</span>
+                      <span className="text-muted-foreground text-sm sm:text-base">Discord</span>
                     </div>
                     
-                    <div className="flex items-center justify-between py-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-2 sm:gap-0">
                       <span className="font-medium">摘要語言</span>
-                      <span className="text-muted-foreground">
+                      <span className="text-muted-foreground text-sm sm:text-base">
                         {subscription?.summary_language === 'zh-TW' ? '繁體中文' : subscription?.summary_language}
                       </span>
                     </div>
@@ -265,7 +265,7 @@ export default function DashboardPage() {
 
                   <div className="pt-2">
                     <Link href="/subscriptions">
-                      <Button variant="outline" className="w-full rounded-xl" size="lg">
+                      <Button variant="outline" className="w-full rounded-xl h-12" size="lg">
                         <Settings className="h-4 w-4 mr-2" />
                         管理訂閱設置
                       </Button>
@@ -297,33 +297,33 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   {statsLoading ? (
-                    <div className="space-y-4">
+                    <div className="space-y-3 md:space-y-4">
                       {[...Array(3)].map((_, i) => (
-                        <div key={i} className="animate-pulse p-4 bg-accent/10 rounded-xl">
+                        <div key={i} className="animate-pulse p-3 md:p-4 bg-accent/10 rounded-xl">
                           <div className="h-4 bg-accent/30 rounded w-3/4 mb-2"></div>
                           <div className="h-3 bg-accent/20 rounded w-1/2"></div>
                         </div>
                       ))}
                     </div>
                   ) : recentHistory.length > 0 ? (
-                    <div className="space-y-4">
+                    <div className="space-y-3 md:space-y-4">
                       {recentHistory.map((item) => (
-                        <div key={item.id} className="p-4 bg-accent/10 rounded-xl border-l-4 border-primary/50">
-                          <p className="font-medium leading-tight mb-2">
+                        <div key={item.id} className="p-3 md:p-4 bg-accent/10 rounded-xl border-l-4 border-primary/50">
+                          <p className="font-medium leading-tight mb-2 text-sm md:text-base">
                             {item.news_articles?.title || `新聞 #${item.article_id}`}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs md:text-sm text-muted-foreground">
                             {format(new Date(item.pushed_at), 'yyyy年MM月dd日 HH:mm')}
                           </p>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-12">
+                    <div className="text-center py-8 md:py-12">
                       <div className="p-3 bg-accent/10 rounded-2xl inline-flex mb-4">
-                        <Clock className="h-6 w-6 text-muted-foreground" />
+                        <Clock className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground" />
                       </div>
-                      <p className="text-muted-foreground">
+                      <p className="text-muted-foreground text-sm md:text-base">
                         暫無推送記錄
                       </p>
                     </div>

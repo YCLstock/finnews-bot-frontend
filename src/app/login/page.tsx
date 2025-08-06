@@ -60,29 +60,29 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <div className="w-full max-w-lg space-y-8">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 md:p-6">
+      <div className="w-full max-w-lg space-y-6 md:space-y-8">
         {/* 標題區域 */}
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-3 md:space-y-4">
           <div className="flex items-center justify-center space-x-3">
-            <div className="p-3 bg-primary/10 rounded-2xl">
-              <TrendingUp className="h-8 w-8 text-primary" />
+            <div className="p-3 md:p-3 bg-primary/10 rounded-2xl">
+              <TrendingUp className="h-7 w-7 md:h-8 md:w-8 text-primary" />
             </div>
             <div className="text-left">
-              <h1 className="text-3xl font-medium tracking-tight">FinNews-Bot</h1>
+              <h1 className="text-2xl md:text-3xl font-medium tracking-tight">FinNews-Bot</h1>
               <p className="text-sm text-muted-foreground">2.0</p>
             </div>
           </div>
-          <p className="text-muted-foreground leading-relaxed max-w-sm mx-auto">
+          <p className="text-muted-foreground leading-relaxed max-w-sm mx-auto text-sm md:text-base px-2 md:px-0">
             自動化財經新聞摘要推送系統 — 透過 AI 為您篩選和摘要最重要的財經資訊
           </p>
         </div>
 
         {/* 登入卡片 */}
-        <Card className="shadow-lg border-border/40 bg-card/90 backdrop-blur-xl">
+        <Card className="shadow-lg border-border/40 bg-card/90 backdrop-blur-xl mx-2 md:mx-0">
           <CardHeader className="space-y-2 text-center pb-6">
-            <CardTitle className="text-2xl">歡迎使用</CardTitle>
-            <CardDescription className="text-base leading-relaxed">
+            <CardTitle className="text-xl md:text-2xl">歡迎使用</CardTitle>
+            <CardDescription className="text-sm md:text-base leading-relaxed px-2 md:px-0">
               使用 Google 帳號快速登入，開始您的個人化財經資訊體驗
             </CardDescription>
           </CardHeader>
@@ -90,7 +90,7 @@ function LoginContent() {
             <Button
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full h-12 bg-background hover:bg-accent/30 text-foreground border border-border/60 shadow-sm hover:shadow-md"
+              className="w-full h-12 md:h-11 bg-background hover:bg-accent/30 text-foreground border border-border/60 shadow-sm hover:shadow-md text-base"
               variant="outline"
               size="lg"
             >
@@ -127,7 +127,7 @@ function LoginContent() {
             {/* 功能說明 */}
             <div className="text-center space-y-4">
               <p className="text-muted-foreground text-sm font-medium">登入後您可以享受：</p>
-              <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs md:text-xs text-muted-foreground">
                 <div className="flex items-center space-x-2 p-3 bg-accent/20 rounded-xl">
                   <div className="w-2 h-2 bg-primary rounded-full"></div>
                   <span>個人化關鍵字設定</span>
@@ -150,12 +150,12 @@ function LoginContent() {
         </Card>
 
         {/* 隱私說明 */}
-        <div className="text-center">
+        <div className="text-center px-4 md:px-0">
           <div className="inline-flex items-center space-x-2 px-4 py-2 bg-accent/20 rounded-2xl">
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground">隱私保護承諾</span>
           </div>
-          <p className="text-xs text-muted-foreground leading-relaxed mt-3 max-w-md mx-auto">
+          <p className="text-xs text-muted-foreground leading-relaxed mt-3 max-w-md mx-auto px-2 md:px-0">
             我們僅使用您的 Google 帳號進行安全身份驗證，絕不存取您的個人資料。
             您的訂閱設置和偏好將經過加密安全儲存。
           </p>
