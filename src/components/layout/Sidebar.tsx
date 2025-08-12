@@ -12,7 +12,6 @@ import {
   Settings, 
   History, 
   LogOut, 
-  TrendingUp,
   Menu,
   X,
   User
@@ -123,17 +122,21 @@ export function Sidebar({ className }: SidebarProps) {
         <div className="flex items-center justify-between p-6 border-b border-sidebar-border/30">
           {!isCollapsed ? (
             <div className="flex items-center justify-center flex-1">
-              <img 
+              <Image 
                 src="/logos/findyai-logo-small.png" 
                 alt="FindyAI" 
+                width={150}
+                height={45}
                 className="h-8 w-auto"
               />
             </div>
           ) : (
             <div className="flex items-center justify-center w-full">
-              <img 
+              <Image 
                 src="/logos/findyai-icon-32.png" 
                 alt="FindyAI" 
+                width={32}
+                height={32}
                 className="h-6 w-6"
               />
             </div>

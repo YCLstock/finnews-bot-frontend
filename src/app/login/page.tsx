@@ -2,11 +2,12 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
-import { AlertCircle, TrendingUp } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 
 // 將使用 useSearchParams 的邏輯分離到單獨的組件
 function LoginContent() {
@@ -65,10 +66,13 @@ function LoginContent() {
         {/* 標題區域 */}
         <div className="text-center space-y-3 md:space-y-4">
           <div className="flex items-center justify-center">
-            <img 
+            <Image 
               src="/logos/findyai-logo-medium.png" 
               alt="FindyAI" 
+              width={300}
+              height={90}
               className="h-12 md:h-16 lg:h-20 w-auto"
+              priority
             />
           </div>
           <p className="text-muted-foreground leading-relaxed max-w-sm mx-auto text-sm md:text-base px-2 md:px-0">
