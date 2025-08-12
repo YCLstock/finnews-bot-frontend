@@ -12,7 +12,7 @@ class ApiError extends Error {
 
 // API 數據類型定義
 interface SubscriptionCreateRequest {
-  delivery_platform: 'discord'
+  delivery_platform: 'discord' | 'email'
   delivery_target: string
   keywords: string[]
   news_sources: string[]
