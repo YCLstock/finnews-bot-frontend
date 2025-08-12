@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ProtectedLayout } from '@/components/layout/ProtectedLayout'
 import { StatCard } from '@/components/ui/stat-card'
 import { OptimizationBanner } from '@/components/guidance/OptimizationBanner'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/hooks/useAuth'
@@ -137,48 +137,52 @@ export default function DashboardPage() {
                 <TrendingUp className="h-10 w-10 md:h-12 md:w-12 text-primary" />
               </div>
               <h3 className="text-xl md:text-2xl font-medium mb-2 md:mb-3 text-center">
-                開始您的財經資訊之旅
+                歡迎使用 FinNews-Bot
               </h3>
               <p className="text-muted-foreground text-center mb-6 md:mb-8 max-w-md leading-relaxed text-sm md:text-base">
-                設置您的財經新聞訂閱，讓 AI 為您篩選和摘要最重要的市場資訊
+                透過 AI 智能篩選，為您推送最重要的財經資訊
               </p>
-              <Link href="/subscriptions">
-                <Button size="lg" className="rounded-xl h-12 px-6 text-base">
-                  <Plus className="h-5 w-5 mr-2" />
-                  創建訂閱
-                </Button>
-              </Link>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link href="/quick-setup">
+                  <Button size="lg" className="rounded-xl h-12 px-6 text-base">
+                    <Plus className="h-5 w-5 mr-2" />
+                    快速設定 (30秒)
+                  </Button>
+                </Link>
+                <Link href="/settings">
+                  <Button variant="outline" size="lg" className="rounded-xl h-12 px-6 text-base">
+                    <Settings className="h-5 w-5 mr-2" />
+                    詳細設定
+                  </Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         ) : (
           <>
-            {/* 統計卡片 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+            {/* 核心狀態概覽 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               <StatCard
-                title="訂閱狀態"
-                value={subscription?.is_active ? "已啟用" : "已停用"}
+                title="推送狀態"
+                value={subscription?.is_active ? "運作中" : "已暫停"}
                 status={subscription?.is_active ? "active" : "inactive"}
                 icon={Bell}
-                description={`推送頻率：${getFrequencyText(subscription?.push_frequency_type || '')}`}
+                description={subscription?.is_active 
+                  ? `${getFrequencyText(subscription?.push_frequency_type || '')}` 
+                  : "點擊下方按鈕啟用推送"
+                }
               />
               
               <StatCard
-                title="總推送次數"
+                title="總推送數"
                 value={stats?.total_pushes || 0}
                 icon={Activity}
-                description="累計推送的新聞數量"
-              />
-              
-              <StatCard
-                title="近 7 天推送"
-                value={stats?.recent_pushes_7_days || 0}
-                icon={Clock}
-                description="最近一週的推送活動"
+                description="已接收的新聞推送"
                 trend={
-                  stats?.recent_pushes_7_days && stats?.total_pushes 
+                  stats?.recent_pushes_7_days && stats?.recent_pushes_7_days > 0
                     ? {
-                        value: Math.round((stats.recent_pushes_7_days / stats.total_pushes) * 100),
-                        label: "佔總數比例",
+                        value: stats.recent_pushes_7_days,
+                        label: "近7天",
                         isPositive: true
                       }
                     : undefined
@@ -186,88 +190,83 @@ export default function DashboardPage() {
               />
               
               <StatCard
-                title="關鍵字數量"
+                title="監控關鍵字"
                 value={subscription?.keywords?.length || 0}
                 icon={TrendingUp}
-                description="正在監控的關鍵字"
+                description="個設定主題"
               />
             </div>
 
-            {/* 訂閱詳情卡片 */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8">
-              {/* 訂閱配置 */}
+            {/* 快速操作區域 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* 主要控制 */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <div className="p-2 bg-primary/10 rounded-lg mr-3">
-                      <Settings className="h-5 w-5 text-primary" />
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="p-2 bg-primary/10 rounded-lg mr-3">
+                        <Settings className="h-5 w-5 text-primary" />
+                      </div>
+                      快速控制
                     </div>
-                    訂閱配置
                   </CardTitle>
-                  <CardDescription>
-                    當前的訂閱設置和配置詳情
-                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-accent/20 rounded-xl gap-3 sm:gap-0">
-                    <span className="font-medium">狀態</span>
-                    <div className="flex items-center space-x-3 w-full sm:w-auto">
-                      <Badge 
-                        variant={subscription?.is_active ? "default" : "secondary"}
-                        className="px-3 py-1"
-                      >
-                        {subscription?.is_active ? "已啟用" : "已停用"}
-                      </Badge>
-                      <Button
-                        onClick={handleToggleSubscription}
-                        size="sm"
-                        variant="outline"
-                        className="rounded-lg flex-1 sm:flex-initial"
-                      >
-                        {subscription?.is_active ? "停用" : "啟用"}
-                      </Button>
+                <CardContent className="space-y-4">
+                  {/* 推送開關 */}
+                  <div className="flex items-center justify-between p-4 bg-accent/10 rounded-xl border border-border/30">
+                    <div className="flex items-center space-x-3">
+                      <Bell className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">推送通知</p>
+                        <p className="text-sm text-muted-foreground">
+                          {subscription?.is_active ? '正在運作' : '已暫停'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-2 sm:gap-0">
-                      <span className="font-medium">推送頻率</span>
-                      <span className="text-muted-foreground text-sm sm:text-base">
-                        {getFrequencyText(subscription?.push_frequency_type || '')}
-                      </span>
-                    </div>
-                    
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-2 sm:gap-0">
-                      <span className="font-medium">推送平台</span>
-                      <span className="text-muted-foreground text-sm sm:text-base">Discord</span>
-                    </div>
-                    
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-2 sm:gap-0">
-                      <span className="font-medium">摘要語言</span>
-                      <span className="text-muted-foreground text-sm sm:text-base">
-                        {subscription?.summary_language === 'zh-TW' ? '繁體中文' : subscription?.summary_language}
-                      </span>
-                    </div>
+                    <Button
+                      onClick={handleToggleSubscription}
+                      variant={subscription?.is_active ? "outline" : "default"}
+                      size="sm"
+                      className="rounded-xl"
+                    >
+                      {subscription?.is_active ? "暫停" : "啟用"}
+                    </Button>
                   </div>
 
+                  {/* 關鍵字預覽 */}
                   {subscription?.keywords && subscription.keywords.length > 0 && (
                     <div className="space-y-3">
-                      <span className="font-medium">監控關鍵字</span>
-                      <div className="flex flex-wrap gap-2">
-                        {subscription.keywords.map((keyword, index) => (
-                          <Badge key={index} variant="secondary" className="px-3 py-1 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm">監控關鍵字</span>
+                        <span className="text-xs text-muted-foreground">{subscription.keywords.length} 個</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {subscription.keywords.slice(0, 6).map((keyword, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs px-2 py-0.5 rounded-md">
                             {keyword}
                           </Badge>
                         ))}
+                        {subscription.keywords.length > 6 && (
+                          <Badge variant="outline" className="text-xs px-2 py-0.5 rounded-md">
+                            +{subscription.keywords.length - 6}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   )}
 
-                  <div className="pt-2">
-                    <Link href="/subscriptions">
-                      <Button variant="outline" className="w-full rounded-xl h-12" size="lg">
+                  {/* 操作按鈕 */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <Link href="/settings">
+                      <Button variant="outline" className="w-full rounded-xl h-11">
                         <Settings className="h-4 w-4 mr-2" />
-                        管理訂閱設置
+                        管理設定
+                      </Button>
+                    </Link>
+                    <Link href="/records">
+                      <Button variant="outline" className="w-full rounded-xl h-11">
+                        <Clock className="h-4 w-4 mr-2" />
+                        查看記錄
                       </Button>
                     </Link>
                   </div>
@@ -284,47 +283,47 @@ export default function DashboardPage() {
                       </div>
                       最近推送
                     </div>
-                    <Link href="/history">
-                      <Button variant="ghost" size="sm" className="rounded-lg">
+                    <Link href="/records">
+                      <Button variant="ghost" size="sm" className="rounded-lg text-xs">
                         查看全部
-                        <ExternalLink className="h-3 w-3 ml-2" />
+                        <ExternalLink className="h-3 w-3 ml-1" />
                       </Button>
                     </Link>
                   </CardTitle>
-                  <CardDescription>
-                    最近的新聞推送記錄和活動
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   {statsLoading ? (
-                    <div className="space-y-3 md:space-y-4">
+                    <div className="space-y-3">
                       {[...Array(3)].map((_, i) => (
-                        <div key={i} className="animate-pulse p-3 md:p-4 bg-accent/10 rounded-xl">
+                        <div key={i} className="animate-pulse p-3 bg-accent/10 rounded-xl">
                           <div className="h-4 bg-accent/30 rounded w-3/4 mb-2"></div>
                           <div className="h-3 bg-accent/20 rounded w-1/2"></div>
                         </div>
                       ))}
                     </div>
                   ) : recentHistory.length > 0 ? (
-                    <div className="space-y-3 md:space-y-4">
-                      {recentHistory.map((item) => (
-                        <div key={item.id} className="p-3 md:p-4 bg-accent/10 rounded-xl border-l-4 border-primary/50">
-                          <p className="font-medium leading-tight mb-2 text-sm md:text-base">
+                    <div className="space-y-3">
+                      {recentHistory.slice(0, 3).map((item) => (
+                        <div key={item.id} className="p-3 bg-accent/10 rounded-xl hover:bg-accent/15 transition-colors">
+                          <p className="font-medium leading-tight mb-1 text-sm line-clamp-2">
                             {item.news_articles?.title || `新聞 #${item.article_id}`}
                           </p>
-                          <p className="text-xs md:text-sm text-muted-foreground">
-                            {format(new Date(item.pushed_at), 'yyyy年MM月dd日 HH:mm')}
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(item.pushed_at), 'MM/dd HH:mm')}
                           </p>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 md:py-12">
-                      <div className="p-3 bg-accent/10 rounded-2xl inline-flex mb-4">
-                        <Clock className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground" />
+                    <div className="text-center py-8">
+                      <div className="p-3 bg-accent/10 rounded-2xl inline-flex mb-3">
+                        <Clock className="h-5 w-5 text-muted-foreground" />
                       </div>
-                      <p className="text-muted-foreground text-sm md:text-base">
+                      <p className="text-muted-foreground text-sm">
                         暫無推送記錄
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        啟用推送後記錄會顯示在這裡
                       </p>
                     </div>
                   )}

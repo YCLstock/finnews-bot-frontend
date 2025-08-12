@@ -6,52 +6,36 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/hooks/useAuth'
 import { 
   LayoutDashboard, 
   Settings, 
   History, 
-  BarChart3, 
   LogOut, 
   TrendingUp,
   Menu,
   X,
-  User,
-  Target
+  User
 } from 'lucide-react'
 
 const navigation = [
   {
-    name: '儀表板',
+    name: '首頁',
     href: '/dashboard',
     icon: LayoutDashboard,
-    description: '系統概覽和快速操作'
+    description: '概覽和快速操作'
   },
   {
-    name: '個人化設定',
-    href: '/guidance',
-    icon: Target,
-    description: '用戶引導和關鍵字優化'
-  },
-  {
-    name: '訂閱管理',
-    href: '/subscriptions',
+    name: '設定',
+    href: '/settings',
     icon: Settings,
-    description: '設置關鍵字和推送頻率'
+    description: '訂閱管理和個人化設定'
   },
   {
-    name: '推送歷史',
-    href: '/history',
+    name: '記錄',
+    href: '/records',
     icon: History,
-    description: '查看推送記錄'
-  },
-  {
-    name: '統計分析',
-    href: '/analytics',
-    icon: BarChart3,
-    description: '數據視覺化分析',
-    comingSoon: true
+    description: '推送歷史和統計分析'
   }
 ]
 
@@ -174,7 +158,6 @@ export function Sidebar({ className }: SidebarProps) {
           {navigation.map((item) => {
             const isActive = pathname === item.href
             const Icon = item.icon
-            const isComingSoon = item.comingSoon
             
             return (
               <Link key={item.name} href={item.href}>
@@ -184,9 +167,7 @@ export function Sidebar({ className }: SidebarProps) {
                     "min-h-[48px] md:min-h-[auto]", // 行動裝置最小觸控高度
                     isActive 
                       ? "bg-primary/15 text-primary border border-primary/20 shadow-sm" 
-                      : isComingSoon
-                        ? "text-muted-foreground hover:bg-sidebar-accent/30 cursor-default"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:shadow-sm"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:shadow-sm"
                   )}
                   onClick={() => {
                     // 行動裝置點擊導航項目後關閉側邊欄
@@ -202,7 +183,7 @@ export function Sidebar({ className }: SidebarProps) {
                   )}>
                     <Icon className={cn(
                       "h-5 w-5 md:h-4 md:w-4", // 行動裝置稍大圖示
-                      isActive ? "text-primary" : isComingSoon ? "text-muted-foreground" : "text-sidebar-foreground"
+                      isActive ? "text-primary" : "text-sidebar-foreground"
                     )} />
                   </div>
                   {!isCollapsed && (
@@ -210,15 +191,10 @@ export function Sidebar({ className }: SidebarProps) {
                       <div className="flex items-center justify-between">
                         <span className={cn(
                           "font-medium truncate text-base md:text-sm", // 行動裝置稍大字體
-                          isActive ? "text-primary" : isComingSoon ? "text-muted-foreground" : "text-sidebar-foreground"
+                          isActive ? "text-primary" : "text-sidebar-foreground"
                         )}>
                           {item.name}
                         </span>
-                        {isComingSoon && (
-                          <Badge variant="outline" className="ml-2 bg-muted/50 text-muted-foreground border-border/50 text-xs px-2 py-0.5">
-                            即將推出
-                          </Badge>
-                        )}
                       </div>
                       <p className={cn(
                         "text-sm md:text-xs mt-0.5 truncate", // 行動裝置稍大描述文字

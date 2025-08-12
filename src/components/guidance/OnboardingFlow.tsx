@@ -176,31 +176,52 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
   // 渲染歡迎步驟
   const renderWelcomeStep = () => (
     <div className="text-center space-y-6">
-      <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-        <Sparkles className="h-8 w-8 text-white" />
+      <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center">
+        <Sparkles className="h-8 w-8 text-primary-foreground" />
       </div>
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          歡迎使用 FinNews-Bot
+        <h2 className="text-2xl font-medium tracking-tight mb-2">
+          AI 個人化優化
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          讓我們為您設定個人化的財經新聞推送，只需要 3-5 分鐘
+        <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">
+          透過智能分析提升您的新聞推送精準度，只需 2 分鐘
         </p>
       </div>
-      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-        <p className="text-sm text-blue-700 dark:text-blue-300">
-          完成設定後，您將獲得：
-        </p>
-        <ul className="text-sm text-blue-600 dark:text-blue-400 mt-2 space-y-1">
-          <li>• 基於您興趣的精準新聞推送</li>
-          <li>• AI 驅動的聚焦度分析</li>
-          <li>• 持續的個人化優化建議</li>
-        </ul>
+      <div className="bg-primary/10 rounded-xl p-4 border border-primary/20">
+        <div className="flex items-center justify-center space-x-6 text-sm">
+          <div className="text-center">
+            <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-1">
+              <Target className="h-4 w-4 text-primary" />
+            </div>
+            <span className="text-muted-foreground">選擇興趣</span>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <div className="text-center">
+            <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-1">
+              <BarChart3 className="h-4 w-4 text-primary" />
+            </div>
+            <span className="text-muted-foreground">AI 分析</span>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <div className="text-center">
+            <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-1">
+              <CheckCircle className="h-4 w-4 text-primary" />
+            </div>
+            <span className="text-muted-foreground">完成</span>
+          </div>
+        </div>
       </div>
-      <Button onClick={handleNext} size="lg" className="w-full">
-        開始設定
-        <ChevronRight className="h-4 w-4 ml-2" />
-      </Button>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Button onClick={handleNext} size="lg" className="flex-1 rounded-xl h-12">
+          開始優化
+          <Sparkles className="h-4 w-4 ml-2" />
+        </Button>
+        {onCancel && (
+          <Button variant="outline" onClick={onCancel} size="lg" className="flex-1 rounded-xl h-12">
+            稍後進行
+          </Button>
+        )}
+      </div>
     </div>
   )
 
@@ -208,63 +229,77 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
   const renderInvestmentFocusStep = () => (
     <div className="space-y-6">
       <div className="text-center">
-        <Target className="h-12 w-12 text-blue-500 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-          選擇您感興趣的投資領域
+        <div className="p-3 bg-primary/10 rounded-2xl inline-flex mb-4">
+          <Target className="h-6 w-6 text-primary" />
+        </div>
+        <h2 className="text-xl font-medium tracking-tight mb-2">
+          選擇感興趣的領域
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          可以選擇多個領域，系統會為您推薦相關關鍵字
+        <p className="text-muted-foreground">
+          可選擇多個領域，AI 會基於您的選擇推薦相關關鍵字
         </p>
         {selectedAreas.length > 0 && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-            <p className="text-sm text-blue-700 dark:text-blue-300">
-              已選擇 {selectedAreas.length} 個領域
+          <div className="bg-primary/10 rounded-xl p-3 mt-4 border border-primary/20">
+            <p className="text-sm text-primary font-medium">
+              ✓ 已選擇 {selectedAreas.length} 個領域
             </p>
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {investmentAreas.map((area) => (
           <div
             key={area.code}
-            className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+            className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-sm ${
               selectedAreas.includes(area.code)
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                ? 'border-primary bg-primary/10 shadow-sm'
+                : 'border-border hover:border-border/80 bg-background hover:bg-accent/10'
             }`}
             onClick={() => handleAreaSelection(area.code)}
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="font-medium text-gray-900 dark:text-white">
+                <h3 className={`font-medium mb-2 ${
+                  selectedAreas.includes(area.code) ? 'text-primary' : 'text-foreground'
+                }`}>
                   {area.name_zh}
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <p className="text-sm text-muted-foreground mb-3">
                   {area.description}
                 </p>
-                <div className="flex flex-wrap gap-1 mt-2">
+                <div className="flex flex-wrap gap-1.5">
                   {area.sample_keywords.slice(0, 3).map((keyword: string, index: number) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
+                    <Badge 
+                      key={index} 
+                      variant="secondary" 
+                      className="text-xs px-2 py-0.5 rounded-md bg-accent/50"
+                    >
                       {keyword}
                     </Badge>
                   ))}
                 </div>
               </div>
-              {selectedAreas.includes(area.code) && (
-                <CheckCircle className="h-5 w-5 text-blue-500 ml-2" />
-              )}
+              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ml-3 transition-colors ${
+                selectedAreas.includes(area.code)
+                  ? 'border-primary bg-primary'
+                  : 'border-border'
+              }`}>
+                {selectedAreas.includes(area.code) && (
+                  <CheckCircle className="h-4 w-4 text-primary-foreground" />
+                )}
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={onCancel}>
+      <div className="flex justify-between pt-4 border-t border-border/30">
+        <Button variant="outline" onClick={onCancel} className="rounded-xl">
           <ChevronLeft className="h-4 w-4 mr-2" />
           取消
         </Button>
-        <Button onClick={handleNext} disabled={selectedAreas.length === 0 || stepLoading}>
+        <Button onClick={handleNext} disabled={selectedAreas.length === 0 || stepLoading} className="rounded-xl">
           {stepLoading ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -272,7 +307,7 @@ export function OnboardingFlow({ onComplete, onCancel }: OnboardingFlowProps) {
             </>
           ) : (
             <>
-              繼續
+              下一步 ({selectedAreas.length} 個選擇)
               <ChevronRight className="h-4 w-4 ml-2" />
             </>
           )}

@@ -81,17 +81,16 @@ function LoginContent() {
         {/* 登入卡片 */}
         <Card className="shadow-lg border-border/40 bg-card/90 backdrop-blur-xl mx-2 md:mx-0">
           <CardHeader className="space-y-2 text-center pb-6">
-            <CardTitle className="text-xl md:text-2xl">歡迎使用</CardTitle>
+            <CardTitle className="text-xl md:text-2xl">歡迎回來</CardTitle>
             <CardDescription className="text-sm md:text-base leading-relaxed px-2 md:px-0">
-              使用 Google 帳號快速登入，開始您的個人化財經資訊體驗
+              使用 Google 帳號登入，開始接收個人化財經新聞
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <Button
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full h-12 md:h-11 bg-background hover:bg-accent/30 text-foreground border border-border/60 shadow-sm hover:shadow-md text-base"
-              variant="outline"
+              className="w-full h-14 text-base rounded-xl shadow-lg hover:shadow-xl transition-all"
               size="lg"
             >
               {isLoading ? (
@@ -124,42 +123,15 @@ function LoginContent() {
               )}
             </Button>
 
-            {/* 功能說明 */}
-            <div className="text-center space-y-4">
-              <p className="text-muted-foreground text-sm font-medium">登入後您可以享受：</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs md:text-xs text-muted-foreground">
-                <div className="flex items-center space-x-2 p-3 bg-accent/20 rounded-xl">
-                  <div className="w-2 h-2 bg-primary rounded-full"></div>
-                  <span>個人化關鍵字設定</span>
-                </div>
-                <div className="flex items-center space-x-2 p-3 bg-accent/20 rounded-xl">
-                  <div className="w-2 h-2 bg-primary rounded-full"></div>
-                  <span>智能推送頻率控制</span>
-                </div>
-                <div className="flex items-center space-x-2 p-3 bg-accent/20 rounded-xl">
-                  <div className="w-2 h-2 bg-primary rounded-full"></div>
-                  <span>完整推送歷史記錄</span>
-                </div>
-                <div className="flex items-center space-x-2 p-3 bg-accent/20 rounded-xl">
-                  <div className="w-2 h-2 bg-primary rounded-full"></div>
-                  <span>AI 精準新聞摘要</span>
-                </div>
+            {/* 簡化的安全承諾 */}
+            <div className="text-center">
+              <div className="inline-flex items-center space-x-2 px-3 py-1.5 bg-accent/20 rounded-xl">
+                <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">安全登入・隱私保護</span>
               </div>
             </div>
           </CardContent>
         </Card>
-
-        {/* 隱私說明 */}
-        <div className="text-center px-4 md:px-0">
-          <div className="inline-flex items-center space-x-2 px-4 py-2 bg-accent/20 rounded-2xl">
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground">隱私保護承諾</span>
-          </div>
-          <p className="text-xs text-muted-foreground leading-relaxed mt-3 max-w-md mx-auto px-2 md:px-0">
-            我們僅使用您的 Google 帳號進行安全身份驗證，絕不存取您的個人資料。
-            您的訂閱設置和偏好將經過加密安全儲存。
-          </p>
-        </div>
       </div>
     </div>
   )

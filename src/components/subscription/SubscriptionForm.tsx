@@ -260,7 +260,7 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Discord Webhook URL */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <Label htmlFor="delivery_target">Discord Webhook URL *</Label>
             <div className="flex space-x-2">
               <Input
@@ -277,7 +277,7 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
                 size="sm"
                 onClick={testConnectivity}
                 disabled={testingConnectivity || !!errors.delivery_target || !formData.delivery_target.trim()}
-                className="min-w-[80px]"
+                className="min-w-[80px] rounded-lg"
               >
                 {testingConnectivity ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -293,16 +293,43 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
               </p>
             )}
             {connectivityResult && (
-              <Alert variant={connectivityResult.success ? 'success' : 'destructive'}>
+              <Alert variant={connectivityResult.success ? 'default' : 'destructive'} className="border-l-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   {connectivityResult.message}
                 </AlertDescription>
               </Alert>
             )}
-            <p className="text-xs text-muted-foreground">
-              在 Discord 頻道設置中創建 Webhook 並複製 URL。點擊「測試」按鈕可驗證連通性（可選）。
-            </p>
+            
+            {/* Discord 設定教學 */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
+              <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-3">
+                📝 如何取得 Discord Webhook URL？
+              </p>
+              <ol className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+                <li className="flex items-start">
+                  <span className="inline-block w-5 h-5 bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full text-xs font-bold text-center leading-5 mr-3 mt-0.5">1</span>
+                  打開 Discord 應用，進入您想接收推送的頻道
+                </li>
+                <li className="flex items-start">
+                  <span className="inline-block w-5 h-5 bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full text-xs font-bold text-center leading-5 mr-3 mt-0.5">2</span>
+                  右鍵點擊頻道名稱 → 「編輯頻道」→「整合」
+                </li>
+                <li className="flex items-start">
+                  <span className="inline-block w-5 h-5 bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full text-xs font-bold text-center leading-5 mr-3 mt-0.5">3</span>
+                  點擊「創建 Webhook」，設定名稱為「FinNews-Bot」
+                </li>
+                <li className="flex items-start">
+                  <span className="inline-block w-5 h-5 bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full text-xs font-bold text-center leading-5 mr-3 mt-0.5">4</span>
+                  複製 Webhook URL 並貼到上方欄位
+                </li>
+              </ol>
+              <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700">
+                <p className="text-xs text-blue-600 dark:text-blue-400">
+                  💡 提示：測試按鈕會發送一條測試訊息到您的頻道，確保設定正確
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* 關鍵字 */}
@@ -332,24 +359,39 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
           </div>
 
           {/* 新聞來源 */}
-          <div className="space-y-2">
-            <Label>新聞來源 *</Label>
-            <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label>新聞來源 *</Label>
+              <span className="text-xs text-muted-foreground">
+                已選擇 {formData.news_sources.length} 個來源
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {NEWS_SOURCES.map((source) => (
                 <div
                   key={source.value}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                  className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-sm ${
                     formData.news_sources.includes(source.value)
-                      ? 'border-primary bg-primary/5'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-primary bg-primary/10 shadow-sm'
+                      : 'border-border hover:border-border/80 bg-background hover:bg-accent/10'
                   }`}
                   onClick={() => handleNewsSourceChange(source.value)}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{source.label}</span>
-                    {formData.news_sources.includes(source.value) && (
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                    )}
+                    <span className={`text-sm font-medium ${
+                      formData.news_sources.includes(source.value) ? 'text-primary' : 'text-foreground'
+                    }`}>
+                      {source.label}
+                    </span>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                      formData.news_sources.includes(source.value)
+                        ? 'border-primary bg-primary'
+                        : 'border-border'
+                    }`}>
+                      {formData.news_sources.includes(source.value) && (
+                        <div className="w-2 h-2 bg-primary-foreground rounded-full"></div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -360,6 +402,9 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
                 {errors.news_sources}
               </p>
             )}
+            <p className="text-xs text-muted-foreground">
+              💡 選擇「全部來源」將監控所有支援的新聞網站
+            </p>
           </div>
 
           {/* 摘要語言和推送頻率 */}
