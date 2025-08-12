@@ -21,7 +21,6 @@ import {
   Activity,
   ExternalLink,
   RefreshCw,
-  Plus,
   Sparkles,
   Zap
 } from 'lucide-react'
