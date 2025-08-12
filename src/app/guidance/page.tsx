@@ -71,23 +71,24 @@ export default function GuidancePage() {
 
   return (
     <ProtectedLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-6xl mx-auto">
         {/* 頁面標題 */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => router.back()}
+              className="rounded-xl h-10"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               返回
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <div className="flex-1">
+              <h1 className="text-2xl md:text-3xl font-medium tracking-tight">
                 個人化設定
               </h1>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground text-sm md:text-base">
                 設定和優化您的新聞推送偏好
               </p>
             </div>
@@ -116,11 +117,11 @@ export default function GuidancePage() {
             )}
           </div>
         ) : (
-          <div className="max-w-2xl mx-auto space-y-6">
+          <div className="max-w-4xl mx-auto space-y-4 md:space-y-6">
             {/* 優化建議橫幅 */}
             <OptimizationBanner 
               onStartOptimization={handleStartOptimization}
-              className="mb-6"
+              className="mb-4 md:mb-6"
             />
 
             {/* 當前狀態卡片 */}
@@ -190,24 +191,28 @@ export default function GuidancePage() {
             {/* 操作按鈕 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleStartOptimization}>
-                <CardContent className="p-4">
+                <CardContent className="p-4 md:p-6">
                   <div className="flex items-center space-x-3">
-                    <Target className="h-8 w-8 text-blue-500" />
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Target className="h-6 w-6 text-primary" />
+                    </div>
                     <div>
-                      <h3 className="font-medium">重新設定</h3>
-                      <p className="text-sm text-gray-600">重新進行引導流程</p>
+                      <h3 className="font-medium text-base">重新設定</h3>
+                      <p className="text-sm text-muted-foreground">重新進行引導流程</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push('/subscriptions')}>
-                <CardContent className="p-4">
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push('/settings')}>
+                <CardContent className="p-4 md:p-6">
                   <div className="flex items-center space-x-3">
-                    <Settings className="h-8 w-8 text-gray-500" />
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Settings className="h-6 w-6 text-primary" />
+                    </div>
                     <div>
-                      <h3 className="font-medium">管理訂閱</h3>
-                      <p className="text-sm text-gray-600">調整訂閱設定</p>
+                      <h3 className="font-medium text-base">管理設定</h3>
+                      <p className="text-sm text-muted-foreground">調整訂閱設定</p>
                     </div>
                   </div>
                 </CardContent>

@@ -108,6 +108,44 @@ export default function SettingsPage() {
     }
   }
 
+  // 判斷推送平台類型和目標
+  const getPlatformInfo = (deliveryTarget: string) => {
+    if (!deliveryTarget) {
+      return { platform: '未設定', target: '', displayTarget: '' }
+    }
+    
+    if (deliveryTarget.startsWith('https://discord.com/api/webhooks/')) {
+      // Discord Webhook
+      const webhookParts = deliveryTarget.split('/')
+      const webhookId = webhookParts[webhookParts.length - 2]
+      const shortId = webhookId ? `...${webhookId.slice(-8)}` : ''
+      return {
+        platform: 'Discord',
+        target: deliveryTarget,
+        displayTarget: shortId ? `Webhook ${shortId}` : 'Discord Webhook'
+      }
+    } else if (deliveryTarget.includes('@') && deliveryTarget.includes('.')) {
+      // Email 地址
+      const [localPart, domain] = deliveryTarget.split('@')
+      const maskedLocal = localPart.length > 3 
+        ? `${localPart.slice(0, 2)}***${localPart.slice(-1)}`
+        : `${localPart.slice(0, 1)}***`
+      return {
+        platform: 'Email',
+        target: deliveryTarget,
+        displayTarget: `${maskedLocal}@${domain}`
+      }
+    } else {
+      return {
+        platform: '未知平台',
+        target: deliveryTarget,
+        displayTarget: deliveryTarget.length > 20 ? `${deliveryTarget.slice(0, 20)}...` : deliveryTarget
+      }
+    }
+  }
+
+  const platformInfo = getPlatformInfo(subscription?.delivery_target || '')
+
   if (showOnboarding) {
     return (
       <ProtectedLayout>
@@ -214,7 +252,15 @@ export default function SettingsPage() {
                             推送平台
                           </label>
                           <p className="text-sm text-muted-foreground">
-                            Discord
+                            {platformInfo.platform}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-foreground">
+                            推送目標
+                          </label>
+                          <p className="text-sm text-muted-foreground font-mono text-xs">
+                            {platformInfo.displayTarget || '未設定'}
                           </p>
                         </div>
                         <div>

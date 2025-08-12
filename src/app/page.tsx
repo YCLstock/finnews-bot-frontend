@@ -84,7 +84,7 @@ export default function HomePage() {
               <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
                 讓 AI 為您篩選和摘要最重要的財經新聞，
                 <br className="hidden md:block" />
-                精準推送到您的 Discord，不錯過任何投資機會
+                精準推送到您的信箱或 Discord，不錯過任何投資機會
               </p>
             </div>
 
@@ -152,7 +152,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-semibold mb-4">即時智能推送</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  新聞發生的第一時間，透過 Discord 接收 AI 生成的精要摘要，掌握市場動態
+                  新聞發生的第一時間，透過 Email 或 Discord 接收 AI 生成的精要摘要，掌握市場動態
                 </p>
               </CardContent>
             </Card>

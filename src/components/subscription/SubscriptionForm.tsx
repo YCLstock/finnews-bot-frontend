@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useSubscription } from '@/hooks/useSubscription'
+import { useAuth } from '@/hooks/useAuth'
 import type { SubscriptionCreateRequest, SubscriptionUpdateRequest } from '@/lib/api-client'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -46,6 +47,8 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
     updateSubscription,
     loading 
   } = useSubscription()
+  
+  const { user } = useAuth()
 
   // 表單狀態
   const [formData, setFormData] = useState({
@@ -64,9 +67,10 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
     message: string
   } | null>(null)
 
-  // 初始化編輯模式的數據
+  // 初始化表單數據
   useEffect(() => {
     if (mode === 'edit' && subscription) {
+      // 編輯模式：使用現有訂閱數據
       setFormData({
         delivery_target: subscription.delivery_target,
         keywords: subscription.keywords || [],
@@ -74,8 +78,14 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
         summary_language: subscription.summary_language,
         push_frequency_type: subscription.push_frequency_type as 'daily' | 'twice' | 'thrice'
       })
+    } else if (mode === 'create' && user?.email && !formData.delivery_target) {
+      // 創建模式：預設填入用戶的 Google 帳號 Email
+      setFormData(prev => ({
+        ...prev,
+        delivery_target: user.email || ''
+      }))
     }
-  }, [mode, subscription])
+  }, [mode, subscription, user?.email, formData.delivery_target])
 
   // 處理推送目標輸入變更（即時格式驗證）
   const handleDeliveryTargetChange = (value: string) => {
