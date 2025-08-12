@@ -142,15 +142,15 @@ export default function DashboardPage() {
               <p className="text-muted-foreground text-center mb-6 md:mb-8 max-w-md leading-relaxed text-sm md:text-base">
                 透過 AI 智能篩選，為您推送最重要的財經資訊
               </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Link href="/quick-setup">
-                  <Button size="lg" className="rounded-xl h-12 px-6 text-base">
+              <div className="mobile-button-group sm:flex-row">
+                <Link href="/quick-setup" className="flex">
+                  <Button size="lg" className="rounded-xl h-12 px-6 text-base flex-1">
                     <Plus className="h-5 w-5 mr-2" />
                     快速設定 (30秒)
                   </Button>
                 </Link>
-                <Link href="/settings">
-                  <Button variant="outline" size="lg" className="rounded-xl h-12 px-6 text-base">
+                <Link href="/settings" className="flex">
+                  <Button variant="outline" size="lg" className="rounded-xl h-12 px-6 text-base flex-1">
                     <Settings className="h-5 w-5 mr-2" />
                     詳細設定
                   </Button>
@@ -256,15 +256,15 @@ export default function DashboardPage() {
                   )}
 
                   {/* 操作按鈕 */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                    <Link href="/settings">
-                      <Button variant="outline" className="w-full rounded-xl h-11">
+                  <div className="mobile-button-group sm:grid sm:grid-cols-2 sm:gap-3 pt-2">
+                    <Link href="/settings" className="flex">
+                      <Button variant="outline" className="w-full rounded-xl h-12 text-base">
                         <Settings className="h-4 w-4 mr-2" />
                         管理設定
                       </Button>
                     </Link>
-                    <Link href="/records">
-                      <Button variant="outline" className="w-full rounded-xl h-11">
+                    <Link href="/records" className="flex">
+                      <Button variant="outline" className="w-full rounded-xl h-12 text-base">
                         <Clock className="h-4 w-4 mr-2" />
                         查看記錄
                       </Button>

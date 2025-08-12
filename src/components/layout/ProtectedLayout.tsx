@@ -41,8 +41,8 @@ export function ProtectedLayout({ children, className }: ProtectedLayoutProps) {
       
       {/* 主內容區域 */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* 主內容 */}
-        <main className={`flex-1 overflow-y-auto bg-background ${className || ''} pt-16 md:pt-0 pl-0 md:pl-0`}>
+        {/* 主內容 - 修復行動版 padding 問題 */}
+        <main className={`flex-1 overflow-y-auto bg-background ${className || ''} pt-20 md:pt-0 pl-0 md:pl-0`}>
           {children}
         </main>
       </div>

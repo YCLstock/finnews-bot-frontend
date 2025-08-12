@@ -88,34 +88,35 @@ export function Sidebar({ className }: SidebarProps) {
   return (
     <>
       {/* 行動裝置漢堡選單按鈕 */}
-      <div className="md:hidden fixed top-4 left-4 z-50">
+      <div className="md:hidden">
         <Button
           onClick={toggleMobileSidebar}
           variant="outline"
           size="icon"
-          className="h-10 w-10 rounded-xl bg-background/80 backdrop-blur-sm border-border/60 shadow-lg hover:shadow-xl"
+          className="mobile-hamburger h-12 w-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
         >
           <Menu className="h-5 w-5" />
         </Button>
       </div>
 
-      {/* 行動裝置遮罩 */}
+      {/* 行動裝置遮罩 - 修復 z-index 和點擊問題 */}
       {isMobileOpen && (
         <div 
-          className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          className="md:hidden mobile-sidebar-overlay"
           onClick={toggleMobileSidebar}
+          aria-hidden="true"
         />
       )}
 
       {/* 側邊欄主體 */}
       <div className={cn(
-        "flex flex-col h-full bg-sidebar/50 backdrop-blur-xl border-r border-sidebar-border/50 transition-all duration-300",
+        "flex flex-col h-full bg-sidebar/90 backdrop-blur-xl border-r border-sidebar-border/50 transition-all duration-300",
         // 桌面模式
         "hidden md:flex",
         isCollapsed ? "w-16" : "w-64",
-        // 行動裝置模式
-        "md:relative fixed inset-y-0 left-0 z-50",
-        isMobileOpen ? "flex w-64" : "hidden md:flex",
+        // 行動裝置模式 - 使用新的 CSS 類別
+        "md:relative mobile-sidebar",
+        isMobileOpen ? "open" : "",
         className
       )}>
         {/* Header */}
@@ -134,7 +135,8 @@ export function Sidebar({ className }: SidebarProps) {
             variant="ghost"
             size="sm"
             onClick={() => {
-              const isMobile = window.innerWidth < 768
+              // 檢查是否為行動裝置（安全地處理 window）
+              const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
               if (isMobile) {
                 setIsMobileOpen(false)
               } else {
@@ -143,12 +145,12 @@ export function Sidebar({ className }: SidebarProps) {
             }}
             className="h-8 w-8 rounded-lg hover:bg-sidebar-accent/50"
           >
-            {window.innerWidth < 768 ? (
-              <X className="h-4 w-4" />
-            ) : isCollapsed ? (
-              <Menu className="h-4 w-4" />
+            {/* 使用 CSS 媒體查詢來處理圖示顯示 */}
+            <X className="h-4 w-4 block md:hidden" />
+            {isCollapsed ? (
+              <Menu className="h-4 w-4 hidden md:block" />
             ) : (
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4 hidden md:block" />
             )}
           </Button>
         </div>
@@ -171,7 +173,7 @@ export function Sidebar({ className }: SidebarProps) {
                   )}
                   onClick={() => {
                     // 行動裝置點擊導航項目後關閉側邊欄
-                    if (window.innerWidth < 768) {
+                    if (typeof window !== 'undefined' && window.innerWidth < 768) {
                       setIsMobileOpen(false)
                     }
                   }}

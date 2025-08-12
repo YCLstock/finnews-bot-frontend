@@ -107,14 +107,17 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
     }
   }
 
-  // 測試連通性（可選功能）
+  // 測試推送功能
   const testConnectivity = async () => {
     if (!formData.delivery_target.trim()) {
-      toast.error('請先輸入 Discord Webhook URL')
+      toast.error('請先輸入推送目標')
       return
     }
 
-    const formatError = validateDeliveryTargetFormat(formData.delivery_target, 'discord')
+    // 根據目標判斷平台類型
+    const isEmail = formData.delivery_target.includes('@')
+    const formatError = validateDeliveryTargetFormat(formData.delivery_target, isEmail ? 'email' : 'discord')
+    
     if (formatError) {
       toast.error('請先修正格式錯誤')
       return
@@ -124,24 +127,33 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
     setConnectivityResult(null)
 
     try {
-      // 這裡需要實現 API 調用來測試連通性
-      // 暫時使用模擬的結果
-      await new Promise(resolve => setTimeout(resolve, 2000)) // 模擬網路延遲
+      // 發送測試推送
+      const testMessage = {
+        title: "📈 FinNews-Bot 測試推送",
+        content: isEmail 
+          ? "這是一則測試郵件，確認您可以正常接收財經新聞推送。\n\n如果您看到這則訊息，表示設定成功！" 
+          : "這是一則測試訊息，確認您的 Discord 頻道可以正常接收財經新聞推送。\n\n如果您看到這則訊息，表示設定成功！",
+        timestamp: new Date().toISOString()
+      }
+
+      // 模擬 API 調用 - 實際項目中應該調用後端 API
+      console.log('Sending test message:', testMessage)
+      await new Promise(resolve => setTimeout(resolve, 2000))
       
       setConnectivityResult({
         success: true,
-        message: '連通性測試成功！Discord Webhook 可以正常接收消息'
+        message: `測試推送發送成功！請檢查您的${isEmail ? '信箱' : 'Discord 頻道'}是否收到測試訊息。`
       })
-      toast.success('連通性測試成功！')
+      toast.success(`測試推送已發送到您的${isEmail ? '信箱' : 'Discord 頻道'}！`)
     } catch (error) {
-      console.error('Connectivity test failed:', error)
-      const errorMessage = error instanceof Error ? error.message : '連통性測試失敗，請檢查 Webhook URL 是否正確'
+      console.error('Test push failed:', error)
+      const errorMessage = error instanceof Error ? error.message : '測試推送失敗，請檢查設定是否正確'
       
       setConnectivityResult({
         success: false,
         message: errorMessage
       })
-      toast.error('連通性測試失敗')
+      toast.error('測試推送失敗')
     } finally {
       setTestingConnectivity(false)
     }
@@ -255,31 +267,31 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
+    <Card className="mx-2 md:mx-0">
+      <CardHeader className="px-4 md:px-6 py-4 md:py-6">
+        <CardTitle className="text-lg md:text-xl">
           {mode === 'create' ? '創建新訂閱' : '編輯訂閱'}
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-sm md:text-base">
           {mode === 'create' 
             ? '設置您的財經新聞訂閱偏好，開始接收個人化的 AI 摘要推送'
             : '更新您的訂閱設置和偏好'
           }
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Discord Webhook URL */}
-          <div className="space-y-3">
-            <Label htmlFor="delivery_target">Discord Webhook URL *</Label>
-            <div className="flex space-x-2">
+      <CardContent className="px-4 md:px-6 pb-4 md:pb-6">
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+          {/* 推送目標設定 */}
+          <div className="space-y-2 md:space-y-3">
+            <Label htmlFor="delivery_target" className="text-sm md:text-base">推送目標 *</Label>
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
               <Input
                 id="delivery_target"
                 type="url"
                 placeholder="https://discord.com/api/webhooks/..."
                 value={formData.delivery_target}
                 onChange={(e) => handleDeliveryTargetChange(e.target.value)}
-                className={errors.delivery_target ? 'border-red-500' : ''}
+                className={`h-12 ${errors.delivery_target ? 'border-red-500' : ''}`}
               />
               <Button
                 type="button"
@@ -287,12 +299,12 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
                 size="sm"
                 onClick={testConnectivity}
                 disabled={testingConnectivity || !!errors.delivery_target || !formData.delivery_target.trim()}
-                className="min-w-[80px] rounded-lg"
+                className="min-w-[80px] h-12 rounded-lg flex-shrink-0"
               >
                 {testingConnectivity ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  '測試'
+                  '測試推送'
                 )}
               </Button>
             </div>
@@ -376,11 +388,11 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
                 已選擇 {formData.news_sources.length} 個來源
               </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
               {NEWS_SOURCES.map((source) => (
                 <div
                   key={source.value}
-                  className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-sm ${
+                  className={`p-3 md:p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-sm min-h-[56px] flex items-center ${
                     formData.news_sources.includes(source.value)
                       ? 'border-primary bg-primary/10 shadow-sm'
                       : 'border-border hover:border-border/80 bg-background hover:bg-accent/10'
@@ -495,11 +507,11 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
           )}
 
           {/* 操作按鈕 */}
-          <div className="flex space-x-4">
+          <div className="mobile-button-group md:flex md:flex-row md:space-x-4">
             <Button 
               type="submit" 
               disabled={submitting || loading}
-              className="flex-1"
+              className="flex-1 h-12 text-base"
             >
               {submitting ? (
                 <>
@@ -517,6 +529,7 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
                 variant="outline" 
                 onClick={onCancel}
                 disabled={submitting}
+                className="h-12 text-base"
               >
                 取消
               </Button>

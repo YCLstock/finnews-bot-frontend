@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { useSubscription } from '@/hooks/useSubscription'
+import { useAuth } from '@/hooks/useAuth'
 import type { SubscriptionCreateRequest } from '@/lib/api-client'
 import { 
   Zap, 
@@ -19,7 +20,9 @@ import {
   Loader2, 
   Clock,
   AlertCircle,
-  Sparkles
+  Sparkles,
+  Mail,
+  MessageSquare
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { isValidDiscordWebhookUrl } from '@/lib/utils'
@@ -50,17 +53,20 @@ const PRESET_KEYWORDS = [
 
 const STEPS = [
   { id: 1, title: '選擇關鍵字', description: '快速選擇您感興趣的關鍵字' },
-  { id: 2, title: 'Discord 設定', description: '設定推送目標' },
-  { id: 3, title: '完成設定', description: '開始接收新聞' }
+  { id: 2, title: '選擇推送方式', description: '選擇 Email 或 Discord' },
+  { id: 3, title: '推送設定', description: '設定推送目標' },
+  { id: 4, title: '完成設定', description: '開始接收新聞' }
 ]
 
 export default function QuickSetupPage() {
   const router = useRouter()
   const { hasSubscription, createSubscription, loading } = useSubscription()
+  const { user } = useAuth()
   
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([])
-  const [discordUrl, setDiscordUrl] = useState('')
+  const [selectedPlatform, setSelectedPlatform] = useState<'email' | 'discord' | null>(null)
+  const [deliveryTarget, setDeliveryTarget] = useState('')
   const [customKeyword, setCustomKeyword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [urlError, setUrlError] = useState('')
@@ -91,18 +97,37 @@ export default function QuickSetupPage() {
     }
   }
 
-  // Discord URL 驗證
-  const handleDiscordUrlChange = (value: string) => {
-    setDiscordUrl(value)
+  // 推送目標驗證
+  const handleDeliveryTargetChange = (value: string) => {
+    setDeliveryTarget(value)
     
     if (value.trim() === '') {
       setUrlError('')
       return
     }
     
-    if (!isValidDiscordWebhookUrl(value)) {
+    if (selectedPlatform === 'discord' && !isValidDiscordWebhookUrl(value)) {
       setUrlError('Discord Webhook URL 格式不正確')
+    } else if (selectedPlatform === 'email') {
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+      if (!emailPattern.test(value)) {
+        setUrlError('Email 地址格式不正確')
+      } else {
+        setUrlError('')
+      }
     } else {
+      setUrlError('')
+    }
+  }
+  
+  // 處理平台選擇
+  const handlePlatformChange = (platform: 'email' | 'discord') => {
+    setSelectedPlatform(platform)
+    if (platform === 'email' && user?.email) {
+      setDeliveryTarget(user.email)
+      setUrlError('')
+    } else {
+      setDeliveryTarget('')
       setUrlError('')
     }
   }
@@ -114,8 +139,13 @@ export default function QuickSetupPage() {
       return
     }
     
-    if (currentStep === 2 && (discordUrl.trim() === '' || urlError)) {
-      toast.error('請輸入有效的 Discord Webhook URL')
+    if (currentStep === 2 && !selectedPlatform) {
+      toast.error('請選擇推送方式')
+      return
+    }
+    
+    if (currentStep === 3 && (deliveryTarget.trim() === '' || urlError)) {
+      toast.error(`請輸入有效的${selectedPlatform === 'email' ? 'Email 地址' : 'Discord Webhook URL'}`)
       return
     }
     
@@ -139,8 +169,8 @@ export default function QuickSetupPage() {
     
     try {
       const createData: SubscriptionCreateRequest = {
-        delivery_platform: 'discord',
-        delivery_target: discordUrl,
+        delivery_platform: selectedPlatform || 'email',
+        delivery_target: deliveryTarget,
         keywords: selectedKeywords,
         news_sources: ['all'],
         summary_language: 'zh-TW',
@@ -308,30 +338,132 @@ export default function QuickSetupPage() {
               </div>
             )}
 
-            {/* 步驟 2: Discord 設定 */}
+            {/* 步驟 2: 選擇推送方式 */}
             {currentStep === 2 && (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <div className="p-3 bg-primary/10 rounded-2xl inline-flex mb-4">
+                    <Sparkles className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="text-muted-foreground mb-6">
+                    選擇您偏好的推送方式
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Email 選項 */}
+                  <div
+                    className={`p-6 border-2 rounded-2xl cursor-pointer transition-all duration-200 hover:shadow-md ${
+                      selectedPlatform === 'email'
+                        ? 'border-primary bg-primary/10 shadow-md'
+                        : 'border-border hover:border-border/80 bg-background hover:bg-accent/10'
+                    }`}
+                    onClick={() => handlePlatformChange('email')}
+                  >
+                    <div className="text-center space-y-4">
+                      <div className={`p-3 rounded-xl inline-flex ${
+                        selectedPlatform === 'email' ? 'bg-primary/20' : 'bg-accent/30'
+                      }`}>
+                        <Mail className={`h-8 w-8 ${
+                          selectedPlatform === 'email' ? 'text-primary' : 'text-muted-foreground'
+                        }`} />
+                      </div>
+                      <div>
+                        <h3 className={`text-lg font-semibold ${
+                          selectedPlatform === 'email' ? 'text-primary' : 'text-foreground'
+                        }`}>
+                          Email 推送
+                        </h3>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          直接發送到您的信箱<br />
+                          簡潔清楚，隨時查看
+                        </p>
+                      </div>
+                      <div className="flex justify-center">
+                        <Badge variant={selectedPlatform === 'email' ? 'default' : 'outline'} className="text-xs">
+                          推薦選擇
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Discord 選項 */}
+                  <div
+                    className={`p-6 border-2 rounded-2xl cursor-pointer transition-all duration-200 hover:shadow-md ${
+                      selectedPlatform === 'discord'
+                        ? 'border-primary bg-primary/10 shadow-md'
+                        : 'border-border hover:border-border/80 bg-background hover:bg-accent/10'
+                    }`}
+                    onClick={() => handlePlatformChange('discord')}
+                  >
+                    <div className="text-center space-y-4">
+                      <div className={`p-3 rounded-xl inline-flex ${
+                        selectedPlatform === 'discord' ? 'bg-primary/20' : 'bg-accent/30'
+                      }`}>
+                        <MessageSquare className={`h-8 w-8 ${
+                          selectedPlatform === 'discord' ? 'text-primary' : 'text-muted-foreground'
+                        }`} />
+                      </div>
+                      <div>
+                        <h3 className={`text-lg font-semibold ${
+                          selectedPlatform === 'discord' ? 'text-primary' : 'text-foreground'
+                        }`}>
+                          Discord 推送
+                        </h3>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          發送到 Discord 頻道<br />
+                          即時通知，團隊分享
+                        </p>
+                      </div>
+                      <div className="flex justify-center">
+                        <Badge variant={selectedPlatform === 'discord' ? 'default' : 'outline'} className="text-xs">
+                          社群首選
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {selectedPlatform === 'email' && (
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800">
+                    <p className="text-sm text-green-800 dark:text-green-200">
+                      <strong>✨ 自動預填：</strong> 我們會使用您的 Google 登入信箱 ({user?.email}) 作為推送目標
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 步驟 3: 推送設定 */}
+            {currentStep === 3 && (
               <div className="space-y-6">
                 <div className="text-center">
                   <div className="p-3 bg-primary/10 rounded-2xl inline-flex mb-4">
                     <Clock className="h-6 w-6 text-primary" />
                   </div>
                   <p className="text-muted-foreground mb-6">
-                    設定您的 Discord Webhook URL 來接收新聞推送
+                    {selectedPlatform === 'email' 
+                      ? '確認您的 Email 地址' 
+                      : '設定您的 Discord Webhook URL'
+                    }
                   </p>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="discord-url" className="text-sm font-medium">
-                      Discord Webhook URL *
+                    <Label htmlFor="delivery-target" className="text-sm font-medium">
+                      {selectedPlatform === 'email' ? 'Email 地址 *' : 'Discord Webhook URL *'}
                     </Label>
                     <Input
-                      id="discord-url"
-                      type="url"
-                      placeholder="https://discord.com/api/webhooks/..."
-                      value={discordUrl}
-                      onChange={(e) => handleDiscordUrlChange(e.target.value)}
-                      className={urlError ? 'border-red-500' : ''}
+                      id="delivery-target"
+                      type={selectedPlatform === 'email' ? 'email' : 'url'}
+                      placeholder={selectedPlatform === 'email' 
+                        ? 'your-email@example.com' 
+                        : 'https://discord.com/api/webhooks/...'
+                      }
+                      value={deliveryTarget}
+                      onChange={(e) => handleDeliveryTargetChange(e.target.value)}
+                      className={`h-12 ${urlError ? 'border-red-500' : ''}`}
                     />
                     {urlError && (
                       <p className="text-sm text-red-500 flex items-center mt-1">
@@ -340,20 +472,25 @@ export default function QuickSetupPage() {
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground mt-1">
-                      在 Discord 頻道設置中創建 Webhook 並複製 URL
+                      {selectedPlatform === 'email' 
+                        ? '我們會發送財經新聞摘要到這個 Email 地址'
+                        : '在 Discord 頻道設置中創建 Webhook 並複製 URL'
+                      }
                     </p>
                   </div>
 
-                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
-                    <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
-                      如何取得 Discord Webhook URL？
-                    </p>
-                    <ol className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                      <li>1. 在 Discord 頻道設置中點擊「整合」</li>
-                      <li>2. 選擇「Webhooks」並創建新的 Webhook</li>
-                      <li>3. 複製 Webhook URL 並貼上</li>
-                    </ol>
-                  </div>
+                  {selectedPlatform === 'discord' && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
+                      <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
+                        如何取得 Discord Webhook URL？
+                      </p>
+                      <ol className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                        <li>1. 在 Discord 頻道設置中點擊「整合」</li>
+                        <li>2. 選擇「Webhooks」並創建新的 Webhook</li>
+                        <li>3. 複製 Webhook URL 並貼上</li>
+                      </ol>
+                    </div>
+                  )}
 
                   {/* 預設設定說明 */}
                   <div className="bg-accent/10 rounded-xl p-4 border border-border/30">
@@ -372,8 +509,8 @@ export default function QuickSetupPage() {
               </div>
             )}
 
-            {/* 步驟 3: 完成設定 */}
-            {currentStep === 3 && (
+            {/* 步驟 4: 完成設定 */}
+            {currentStep === 4 && (
               <div className="space-y-6">
                 <div className="text-center">
                   <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-2xl inline-flex mb-4">
@@ -395,7 +532,7 @@ export default function QuickSetupPage() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">推送平台：</span>
-                        <span className="font-medium">Discord</span>
+                        <span className="font-medium">{selectedPlatform === 'email' ? 'Email' : 'Discord'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">推送頻率：</span>
@@ -416,6 +553,19 @@ export default function QuickSetupPage() {
                       <div>• 每日 08:00 的財經新聞摘要</div>
                       <div>• 基於您關鍵字的精準內容</div>
                       <div>• AI 生成的中文新聞摘要</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-green-800 dark:text-green-200 font-medium">
+                          💡 立即測試推送
+                        </p>
+                        <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                          完成設定後可發送測試推送，確認設定正確
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
