@@ -47,7 +47,7 @@ export default function HomePage() {
                 <TrendingUp className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold tracking-tight">FinNews-Bot</h1>
+                <h1 className="text-xl font-semibold tracking-tight">FindyAI</h1>
                 <p className="text-xs text-muted-foreground">2.0</p>
               </div>
             </div>
@@ -123,7 +123,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              為什麼選擇 FinNews-Bot？
+              為什麼選擇 FindyAI？
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               專為投資者設計的智能新聞推送系統
@@ -222,7 +222,7 @@ export default function HomePage() {
                 準備好掌握財經資訊了嗎？
               </h2>
               <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                立即開始使用 FinNews-Bot，讓 AI 為您篩選最重要的財經新聞
+                立即開始使用 FindyAI，讓 AI 為您篩選最重要的財經新聞
               </p>
               <Link href="/login">
                 <Button size="lg" className="h-14 px-8 text-base rounded-xl shadow-lg hover:shadow-xl">
@@ -240,7 +240,7 @@ export default function HomePage() {
       <footer className="border-t border-border/40 bg-background/50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center text-muted-foreground">
-            <p>&copy; 2024 FinNews-Bot. 智能財經新聞推送系統</p>
+            <p>&copy; 2024 FindyAI. 智能財經新聞推送系統</p>
           </div>
         </div>
       </footer>

@@ -131,7 +131,7 @@ export function Sidebar({ className }: SidebarProps) {
               />
             </div>
           ) : (
-            <div className="flex items-center justify-center w-full">
+            <div className="flex items-center justify-between w-full">
               <Image 
                 src="/logos/findyai-icon-32.png" 
                 alt="FindyAI" 
@@ -139,6 +139,14 @@ export function Sidebar({ className }: SidebarProps) {
                 height={32}
                 className="h-6 w-6"
               />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsCollapsed(false)}
+                className="h-8 w-8 rounded-lg hover:bg-sidebar-accent/50"
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
             </div>
           )}
           

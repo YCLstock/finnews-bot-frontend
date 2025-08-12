@@ -117,7 +117,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans text-base lg:text-lg xl:text-xl;
+    @apply bg-background text-foreground font-sans text-base lg:text-lg xl:text-xl 2xl:text-2xl;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -129,28 +129,28 @@
     margin: 0;
   }
   h1 {
-    @apply text-3xl md:text-4xl lg:text-5xl xl:text-6xl;
+    @apply text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl;
     margin-bottom: 1rem;
   }
   h2 {
-    @apply text-2xl md:text-3xl lg:text-4xl xl:text-5xl;
+    @apply text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl;
     margin-bottom: 0.875rem;
   }
   h3 {
-    @apply text-xl md:text-2xl lg:text-3xl xl:text-4xl;
+    @apply text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl;
     margin-bottom: 0.75rem;
   }
   h4 {
-    @apply text-lg md:text-xl lg:text-2xl xl:text-3xl;
+    @apply text-lg md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl;
     margin-bottom: 0.625rem;
   }
   p {
     line-height: 1.7;
     margin: 0 0 1rem 0;
-    @apply text-base lg:text-lg xl:text-xl;
+    @apply text-base lg:text-lg xl:text-xl 2xl:text-2xl;
   }
   small {
-    @apply text-sm lg:text-base xl:text-lg;
+    @apply text-sm lg:text-base xl:text-lg 2xl:text-xl;
     line-height: 1.5;
   }
   
@@ -241,6 +241,30 @@
     }
   }
   
+  /* 大螢幕字體優化 */
+  @media (min-width: 1536px) {
+    .text-xs { font-size: 0.875rem !important; } /* 原本 12px -> 14px */
+    .text-sm { font-size: 1rem !important; }     /* 原本 14px -> 16px */
+    .text-base { font-size: 1.125rem !important; } /* 原本 16px -> 18px */
+    .text-lg { font-size: 1.25rem !important; }  /* 原本 18px -> 20px */
+    .text-xl { font-size: 1.5rem !important; }   /* 原本 20px -> 24px */
+    
+    /* 卡片內容和列表項目 */
+    .card-content, .list-item, .notification-item {
+      @apply text-lg leading-relaxed;
+    }
+    
+    /* 按鈕文字 */
+    button, .btn {
+      @apply text-lg;
+    }
+    
+    /* 輸入框文字 */
+    input, textarea, select {
+      @apply text-lg;
+    }
+  }
+
   /* Z-Index 層級管理系統 */
   .z-dropdown { z-index: 10; }
   .z-sticky { z-index: 20; }

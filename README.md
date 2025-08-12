@@ -1,12 +1,12 @@
-# FinNews-Bot 📈
+# FindyAI 📈
 
 > **"在資訊洪流中，為您捕捉最重要的那滴水"**
 
 想像一下，每天早晨，當您還在享受咖啡的香氣時，最重要的財經資訊已經精準地出現在您的信箱中。不是 1000 條雜亂的新聞，而是 3-5 條 AI 為您量身挑選的投資機會。
 
-這就是 **FinNews-Bot** 的使命 —— 讓財經資訊重獲意義。
+這就是 **FindyAI** 的使命 —— 讓財經資訊重獲意義。
 
-![FinNews-Bot](https://img.shields.io/badge/Status-Active-success)
+![FindyAI](https://img.shields.io/badge/Status-Active-success)
 ![Next.js](https://img.shields.io/badge/Next.js-15.3.4-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-blue)
@@ -24,13 +24,13 @@
 
 ### 解決方案：AI 驅動的精準推送
 
-**FinNews-Bot 不是另一個新聞 App，而是您的專屬財經資訊管家。**
+**FindyAI 不是另一個新聞 App，而是您的專屬財經資訊管家。**
 
 ## 🌟 如何改變您的投資生活？
 
 ### 📧 早晨 8:00 - 完美的開始
 ```
-收件匣：[FinNews-Bot] 今日精選財經新聞 (3則)
+收件匣：[FindyAI] 今日精選財經新聞 (3則)
 
 ⭐ 台積電宣布新一代3奈米製程量產時程
 📈 Fed利率決議前市場避險情緒升溫  
@@ -266,21 +266,21 @@ npm run type-check
 ## 🎯 實際使用場景
 
 ### 👨‍💼 投資老手 - Kevin
-> *"我投資台股 15 年，每天要看 10 幾個財經網站。自從用了 FinNews-Bot，早上花 5 分鐘看 Email 就夠了。昨天台積電法說會的重點，AI 幫我整理得比我自己看完整篇報導還清楚。"*
+> *"我投資台股 15 年，每天要看 10 幾個財經網站。自從用了 FindyAI，早上花 5 分鐘看 Email 就夠了。昨天台積電法說會的重點，AI 幫我整理得比我自己看完整篇報導還清楚。"*
 
 **Kevin 的設定**：台積電、聯發科、大立光 + 半導體產業新聞
 
 ---
 
 ### 💼 金融從業者 - Sarah
-> *"在投信工作，每天要做晨會報告。FinNews-Bot 的 AI 摘要讓我快速掌握美股、陸股、台股的重點動態。同事都問我怎麼資訊蒐集這麼快。"*
+> *"在投信工作，每天要做晨會報告。FindyAI 的 AI 摘要讓我快速掌握美股、陸股、台股的重點動態。同事都問我怎麼資訊蒐集這麼快。"*
 
 **Sarah 的設定**：美股科技股、Fed 政策、中美貿易 + 每日三次推送
 
 ---
 
 ### 🎓 投資新手 - Amy
-> *"剛開始學投資，不知道該看什麼新聞。FinNews-Bot 的個人化引導幫我找到適合的關鍵字，現在每天收到的都是我看得懂、用得上的資訊。"*
+> *"剛開始學投資，不知道該看什麼新聞。FindyAI 的個人化引導幫我找到適合的關鍵字，現在每天收到的都是我看得懂、用得上的資訊。"*
 
 **Amy 的設定**：ETF、定期定額、投資入門 + 簡體中文摘要
 
@@ -341,7 +341,7 @@ Claude 代表了 AI 時代的設計哲學：
 
 **我們相信好的工具應該被分享。**
 
-FinNews-Bot 採用開源協作模式，歡迎：
+FindyAI 採用開源協作模式，歡迎：
 - 🐛 **回報 Bug**：讓系統更穩定
 - 💡 **功能建議**：讓產品更實用  
 - 🔧 **代碼貢獻**：讓技術更進步
@@ -368,13 +368,13 @@ FinNews-Bot 採用開源協作模式，歡迎：
 ### 立即體驗
 ```bash
 git clone <repository-url>
-cd finnews-bot-frontend
+cd findyai-frontend
 npm install && npm run dev
 ```
 
 ### 加入社群
 - 💬 **討論區**：分享使用心得和投資想法
-- 📧 **Email 支援**：technical-support@finnews-bot.com  
+- 📧 **Email 支援**：technical-support@findyai.com  
 - 🐛 **Bug 回報**：透過 GitHub Issues
 - 💡 **功能建議**：告訴我們您想要的功能
 
@@ -387,7 +387,7 @@ npm install && npm run dev
 
 ## 💬 最後的話
 
-**FinNews-Bot 不只是一個工具，更是一種投資哲學。**
+**FindyAI 不只是一個工具，更是一種投資哲學。**
 
 我們相信，在 AI 的幫助下，每個投資人都能擁有專業級的資訊分析能力。不需要花費大量時間篩選新聞，不需要擔心錯過重要資訊，只需要專注於最重要的事：做出明智的投資決策。
 
@@ -395,6 +395,6 @@ npm install && npm run dev
 
 ---
 
-*© 2024 FinNews-Bot. 採用 MIT 開源授權條款.*
+*© 2024 FindyAI. 採用 MIT 開源授權條款.*
 
 **讓 AI 為您精選最重要的財經資訊 📈**

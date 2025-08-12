@@ -79,15 +79,15 @@ export function DiscordGuide({ onWebhookValidated, currentWebhook = '', isEmbedd
       title: "建立 Webhook",
       description: "在左側選單點擊「整合」→「Webhook」→「建立 Webhook」",
       detail: "Webhook 是讓外部應用程式發送訊息到 Discord 頻道的機制。",
-      action: { text: "FinNews-Bot", type: "copy" },
+      action: { text: "FindyAI", type: "copy" },
       image: "🔗",
-      tips: ["Webhook 名稱建議使用：FinNews-Bot", "可以設定專門的頭像圖片"]
+      tips: ["Webhook 名稱建議使用：FindyAI", "可以設定專門的頭像圖片"]
     },
     {
       id: 5,
       title: "複製 Webhook URL",
       description: "點擊「複製 Webhook URL」按鈕，然後貼到下方欄位",
-      detail: "這個 URL 就是 FinNews-Bot 發送新聞的目標地址，請妥善保管。",
+      detail: "這個 URL 就是 FindyAI 發送新聞的目標地址，請妥善保管。",
       action: null,
       image: "📋",
       tips: ["URL 格式：https://discord.com/api/webhooks/...", "不要與他人分享這個 URL"]
@@ -212,7 +212,7 @@ export function DiscordGuide({ onWebhookValidated, currentWebhook = '', isEmbedd
           <Badge variant="outline" className="ml-2">5分鐘</Badge>
         </CardTitle>
         <p className="text-gray-600">
-          按照以下步驟設定，讓 FinNews-Bot 直接推送新聞到您的 Discord 頻道
+          按照以下步驟設定，讓 FindyAI 直接推送新聞到您的 Discord 頻道
         </p>
       </CardHeader>
       
@@ -294,7 +294,7 @@ export function DiscordGuide({ onWebhookValidated, currentWebhook = '', isEmbedd
                   <br />
                   • 如果 URL 洩露，請在 Discord 中重新生成
                   <br />
-                  • FinNews-Bot 只會用於發送新聞，不會讀取頻道訊息
+                  • FindyAI 只會用於發送新聞，不會讀取頻道訊息
                 </AlertDescription>
               </Alert>
             </div>
@@ -346,7 +346,7 @@ export function DiscordGuide({ onWebhookValidated, currentWebhook = '', isEmbedd
           </Button>
           
           <Button variant="outline" asChild>
-            <a href="mailto:support@finnews-bot.com">
+            <a href="mailto:support@findyai.com">
               <MessageSquare className="h-4 w-4 mr-2" />
               需要協助？
             </a>

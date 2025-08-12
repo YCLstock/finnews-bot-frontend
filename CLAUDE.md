@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-FinNews-Bot Frontend is a Next.js 15 application that provides an AI-powered financial news aggregation and push notification system. The app uses a Claude-inspired design system with warm orange color schemes, modern typography, and clean layouts.
+FindyAI Frontend is a Next.js 15 application that provides an AI-powered financial news aggregation and push notification system. The app uses a Claude-inspired design system with warm orange color schemes, modern typography, and clean layouts.
 
 ## Development Commands
 

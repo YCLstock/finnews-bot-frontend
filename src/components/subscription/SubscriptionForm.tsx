@@ -129,7 +129,7 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
     try {
       // 發送測試推送
       const testMessage = {
-        title: "📈 FinNews-Bot 測試推送",
+        title: "📈 FindyAI 測試推送",
         content: isEmail 
           ? "這是一則測試郵件，確認您可以正常接收財經新聞推送。\n\n如果您看到這則訊息，表示設定成功！" 
           : "這是一則測試訊息，確認您的 Discord 頻道可以正常接收財經新聞推送。\n\n如果您看到這則訊息，表示設定成功！",
@@ -339,7 +339,7 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
                 </li>
                 <li className="flex items-start">
                   <span className="inline-block w-5 h-5 bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full text-xs font-bold text-center leading-5 mr-3 mt-0.5">3</span>
-                  點擊「創建 Webhook」，設定名稱為「FinNews-Bot」
+                  點擊「創建 Webhook」，設定名稱為「FindyAI」
                 </li>
                 <li className="flex items-start">
                   <span className="inline-block w-5 h-5 bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full text-xs font-bold text-center leading-5 mr-3 mt-0.5">4</span>
