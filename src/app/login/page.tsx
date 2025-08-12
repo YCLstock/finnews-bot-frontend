@@ -61,8 +61,20 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 md:p-6">
-      <div className="w-full max-w-lg space-y-6 md:space-y-8">
+    <div className="min-h-screen bg-background relative">
+      {/* 左上角 logo */}
+      <div className="absolute top-4 left-4 md:top-6 md:left-6 z-10">
+        <Image 
+          src="/logos/findyai-logo-small.png" 
+          alt="FindyAI" 
+          width={150}
+          height={45}
+          className="h-5 sm:h-6 md:h-8 w-auto opacity-60 hover:opacity-100 transition-opacity mobile-logo-small"
+        />
+      </div>
+      
+      <div className="min-h-screen flex items-center justify-center p-4 md:p-6">
+        <div className="w-full max-w-lg space-y-6 md:space-y-8">
         {/* 標題區域 */}
         <div className="text-center space-y-3 md:space-y-4">
           <div className="flex items-center justify-center">
@@ -71,7 +83,7 @@ function LoginContent() {
               alt="FindyAI" 
               width={300}
               height={90}
-              className="h-12 md:h-16 lg:h-20 w-auto"
+              className="h-10 sm:h-12 md:h-16 lg:h-20 w-auto mobile-logo-medium"
               priority
             />
           </div>
@@ -134,6 +146,7 @@ function LoginContent() {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   )

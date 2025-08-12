@@ -101,7 +101,7 @@ export function Sidebar({ className }: SidebarProps) {
       {/* 行動裝置遮罩 - 修復 z-index 和點擊問題 */}
       {isMobileOpen && (
         <div 
-          className="md:hidden mobile-sidebar-overlay"
+          className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
           onClick={toggleMobileSidebar}
           aria-hidden="true"
         />
@@ -109,19 +109,20 @@ export function Sidebar({ className }: SidebarProps) {
 
       {/* 側邊欄主體 */}
       <div className={cn(
-        "flex flex-col h-full bg-sidebar/90 backdrop-blur-xl border-r border-sidebar-border/50 transition-all duration-300",
+        "flex flex-col h-full bg-sidebar/90 backdrop-blur-xl border-r border-sidebar-border/50",
         // 桌面模式
-        "hidden md:flex",
-        isCollapsed ? "w-16" : "w-64",
-        // 行動裝置模式 - 使用新的 CSS 類別
-        "md:relative mobile-sidebar",
-        isMobileOpen ? "open" : "",
+        "hidden md:flex md:relative transition-all duration-300",
+        isCollapsed ? "md:w-16" : "md:w-64",
+        // 手機版固定定位側邊欄
+        "fixed md:hidden top-0 left-0 bottom-0 w-80 z-50 transform transition-transform duration-300",
+        isMobileOpen ? "translate-x-0" : "-translate-x-full",
         className
       )}>
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-sidebar-border/30">
-          {!isCollapsed ? (
-            <div className="flex items-center justify-center flex-1">
+          {/* 桌面模式 logo 顯示 */}
+          <div className="hidden md:flex items-center justify-center flex-1">
+            {!isCollapsed ? (
               <Image 
                 src="/logos/findyai-logo-small.png" 
                 alt="FindyAI" 
@@ -129,48 +130,61 @@ export function Sidebar({ className }: SidebarProps) {
                 height={45}
                 className="h-8 w-auto"
               />
-            </div>
-          ) : (
-            <div className="flex items-center justify-between w-full">
-              <Image 
-                src="/logos/findyai-icon-32.png" 
-                alt="FindyAI" 
-                width={32}
-                height={32}
-                className="h-6 w-6"
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsCollapsed(false)}
-                className="h-8 w-8 rounded-lg hover:bg-sidebar-accent/50"
-              >
-                <Menu className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
+            ) : (
+              <div className="flex items-center justify-between w-full">
+                <Image 
+                  src="/logos/findyai-icon-32.png" 
+                  alt="FindyAI" 
+                  width={32}
+                  height={32}
+                  className="h-6 w-6"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsCollapsed(false)}
+                  className="h-8 w-8 rounded-lg hover:bg-sidebar-accent/50"
+                >
+                  <Menu className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* 手機版 logo 顯示 */}
+          <div className="flex md:hidden items-center justify-center flex-1">
+            <Image 
+              src="/logos/findyai-logo-medium.png" 
+              alt="FindyAI" 
+              width={300}
+              height={90}
+              className="h-8 sm:h-10 w-auto mobile-logo-medium"
+            />
+          </div>
           
           {/* 桌面模式：折疊按鈕，行動裝置模式：關閉按鈕 */}
-          {!isCollapsed && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                // 檢查是否為行動裝置（安全地處理 window）
-                const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-                if (isMobile) {
-                  setIsMobileOpen(false)
-                } else {
-                  setIsCollapsed(!isCollapsed)
-                }
-              }}
-              className="h-8 w-8 rounded-lg hover:bg-sidebar-accent/50"
-            >
-              {/* 使用 CSS 媒體查詢來處理圖示顯示 */}
-              <X className="h-4 w-4 block md:hidden" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              // 檢查是否為行動裝置（安全地處理 window）
+              const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+              if (isMobile) {
+                setIsMobileOpen(false)
+              } else {
+                setIsCollapsed(!isCollapsed)
+              }
+            }}
+            className="h-8 w-8 rounded-lg hover:bg-sidebar-accent/50"
+          >
+            {/* 手機版顯示 X，桌機版根據狀態顯示 */}
+            <X className="h-4 w-4 block md:hidden" />
+            {!isCollapsed ? (
               <X className="h-4 w-4 hidden md:block" />
-            </Button>
-          )}
+            ) : (
+              <Menu className="h-4 w-4 hidden md:block" />
+            )}
+          </Button>
         </div>
 
         {/* Navigation */}

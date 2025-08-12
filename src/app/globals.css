@@ -265,6 +265,33 @@
     }
   }
 
+  /* Logo 響應式設計優化 */
+  @media (max-width: 480px) {
+    /* 超小螢幕 logo 調整 */
+    .mobile-logo-small {
+      max-width: 120px;
+      height: auto;
+    }
+    
+    .mobile-logo-medium {
+      max-width: 200px;
+      height: auto;
+    }
+  }
+  
+  @media (min-width: 481px) and (max-width: 768px) {
+    /* 手機大螢幕 logo 調整 */
+    .mobile-logo-small {
+      max-width: 140px;
+      height: auto;
+    }
+    
+    .mobile-logo-medium {
+      max-width: 240px;
+      height: auto;
+    }
+  }
+
   /* Z-Index 層級管理系統 */
   .z-dropdown { z-index: 10; }
   .z-sticky { z-index: 20; }
@@ -296,30 +323,6 @@
       min-height: 48px;
     }
     
-    /* 修復側邊欄遮罩問題 */
-    .mobile-sidebar-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(4px);
-      z-index: 40; /* z-modal-backdrop */
-      transition: opacity 0.2s ease-in-out;
-    }
-    
-    .mobile-sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      width: 280px;
-      z-index: 50; /* z-modal */
-      transform: translateX(-100%);
-      transition: transform 0.3s ease-in-out;
-    }
-    
-    .mobile-sidebar.open {
-      transform: translateX(0);
-    }
     
     .mobile-hamburger {
       position: fixed;
