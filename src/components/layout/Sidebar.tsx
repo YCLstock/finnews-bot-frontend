@@ -121,38 +121,45 @@ export function Sidebar({ className }: SidebarProps) {
       )}>
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-sidebar-border/30">
-          {!isCollapsed && (
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-primary" />
-              </div>
-              <span className="font-medium text-lg tracking-tight">FinNews-Bot</span>
+          {!isCollapsed ? (
+            <div className="flex items-center justify-center flex-1">
+              <img 
+                src="/logos/findyai-logo-small.png" 
+                alt="FindyAI" 
+                className="h-8 w-auto"
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center w-full">
+              <img 
+                src="/logos/findyai-icon-32.png" 
+                alt="FindyAI" 
+                className="h-6 w-6"
+              />
             </div>
           )}
           
           {/* 桌面模式：折疊按鈕，行動裝置模式：關閉按鈕 */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              // 檢查是否為行動裝置（安全地處理 window）
-              const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-              if (isMobile) {
-                setIsMobileOpen(false)
-              } else {
-                setIsCollapsed(!isCollapsed)
-              }
-            }}
-            className="h-8 w-8 rounded-lg hover:bg-sidebar-accent/50"
-          >
-            {/* 使用 CSS 媒體查詢來處理圖示顯示 */}
-            <X className="h-4 w-4 block md:hidden" />
-            {isCollapsed ? (
-              <Menu className="h-4 w-4 hidden md:block" />
-            ) : (
+          {!isCollapsed && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                // 檢查是否為行動裝置（安全地處理 window）
+                const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+                if (isMobile) {
+                  setIsMobileOpen(false)
+                } else {
+                  setIsCollapsed(!isCollapsed)
+                }
+              }}
+              className="h-8 w-8 rounded-lg hover:bg-sidebar-accent/50"
+            >
+              {/* 使用 CSS 媒體查詢來處理圖示顯示 */}
+              <X className="h-4 w-4 block md:hidden" />
               <X className="h-4 w-4 hidden md:block" />
-            )}
-          </Button>
+            </Button>
+          )}
         </div>
 
         {/* Navigation */}

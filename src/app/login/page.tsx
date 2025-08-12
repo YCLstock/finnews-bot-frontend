@@ -64,14 +64,12 @@ function LoginContent() {
       <div className="w-full max-w-lg space-y-6 md:space-y-8">
         {/* 標題區域 */}
         <div className="text-center space-y-3 md:space-y-4">
-          <div className="flex items-center justify-center space-x-3">
-            <div className="p-3 md:p-3 bg-primary/10 rounded-2xl">
-              <TrendingUp className="h-7 w-7 md:h-8 md:w-8 text-primary" />
-            </div>
-            <div className="text-left">
-              <h1 className="text-2xl md:text-3xl font-medium tracking-tight">FinNews-Bot</h1>
-              <p className="text-sm text-muted-foreground">2.0</p>
-            </div>
+          <div className="flex items-center justify-center">
+            <img 
+              src="/logos/findyai-logo-medium.png" 
+              alt="FindyAI" 
+              className="h-12 md:h-16 lg:h-20 w-auto"
+            />
           </div>
           <p className="text-muted-foreground leading-relaxed max-w-sm mx-auto text-sm md:text-base px-2 md:px-0">
             自動化財經新聞摘要推送系統 — 透過 AI 為您篩選和摘要最重要的財經資訊

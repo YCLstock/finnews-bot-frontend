@@ -17,10 +17,20 @@ const ibmPlexSans = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "FinNews-Bot — AI 驅動的財經資訊助手",
+  title: "FindyAI — AI 驅動的財經資訊助手",
   description: "智能財經新聞摘要與推送系統 — 運用先進的 AI 技術，為您篩選、摘要並適時推送最重要的市場資訊，讓您掌握投資先機。",
   keywords: ["財經新聞", "AI 摘要", "智能推送", "Discord 機器人", "投資資訊", "市場動態"],
-  authors: [{ name: "FinNews-Bot Team" }],
+  authors: [{ name: "FindyAI Team" }],
+  icons: {
+    icon: [
+      { url: "/logos/findyai-icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/logos/findyai-icon-64.png", sizes: "64x64", type: "image/png" },
+      { url: "/logos/findyai-icon-128.png", sizes: "128x128", type: "image/png" }
+    ],
+    apple: [
+      { url: "/logos/findyai-icon-128.png", sizes: "128x128", type: "image/png" }
+    ]
+  }
 };
 
 export const viewport: Viewport = {
