@@ -29,15 +29,15 @@ export function StatCard({
   const getStatusColor = (status?: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-50 text-green-700 border-green-200'
+        return 'bg-green-500/10 text-green-700 border-green-500/20 dark:bg-green-400/10 dark:text-green-400 dark:border-green-400/20'
       case 'inactive':
-        return 'bg-gray-50 text-gray-700 border-gray-200'
+        return 'bg-muted text-muted-foreground border-border'
       case 'warning':
-        return 'bg-yellow-50 text-yellow-700 border-yellow-200'
+        return 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20 dark:bg-yellow-400/10 dark:text-yellow-400 dark:border-yellow-400/20'
       case 'error':
-        return 'bg-red-50 text-red-700 border-red-200'
+        return 'bg-destructive/10 text-destructive border-destructive/20 dark:bg-destructive/10 dark:text-destructive dark:border-destructive/20'
       default:
-        return 'bg-blue-50 text-blue-700 border-blue-200'
+        return 'bg-primary/10 text-primary border-primary/20 dark:bg-primary/10 dark:text-primary dark:border-primary/20'
     }
   }
 
@@ -86,7 +86,7 @@ export function StatCard({
           <div className="flex items-center mt-2">
             <span className={cn(
               "text-xs font-medium",
-              trend.isPositive ? "text-green-600" : "text-red-600"
+              trend.isPositive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
             )}>
               {trend.isPositive ? '+' : ''}{trend.value}%
             </span>

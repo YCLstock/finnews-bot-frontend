@@ -63,6 +63,17 @@ export function Sidebar({ className }: SidebarProps) {
     return () => window.removeEventListener('resize', checkScreenSize)
   }, [])
 
+  // ESC 鍵關閉行動版側邊欄
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isMobileOpen) {
+        setIsMobileOpen(false)
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isMobileOpen])
+
   // 行動裝置點擊遮罩關閉側邊欄
   useEffect(() => {
     if (isMobileOpen) {
@@ -104,7 +115,7 @@ export function Sidebar({ className }: SidebarProps) {
           className="md:hidden fixed top-0 right-0 bottom-0 bg-black/50 backdrop-blur-sm z-40"
           onClick={toggleMobileSidebar}
           aria-hidden="true"
-          style={{ left: '320px' }}
+          style={{ left: '288px' }}
         />
       )}
 
@@ -265,7 +276,7 @@ export function Sidebar({ className }: SidebarProps) {
       {/* 行動版側邊欄 - 條件顯示 */}
       {isMobileOpen && (
         <div className={cn(
-          "md:hidden fixed top-0 left-0 bottom-0 w-80 z-50 flex flex-col h-full bg-sidebar/90 backdrop-blur-xl border-r border-sidebar-border/50",
+          "md:hidden fixed top-0 left-0 bottom-0 w-72 z-50 flex flex-col h-full bg-sidebar/90 backdrop-blur-xl border-r border-sidebar-border/50",
           className
         )}>
           {/* Header - 行動版 */}
