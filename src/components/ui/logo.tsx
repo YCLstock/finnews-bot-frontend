@@ -79,7 +79,7 @@ export function Logo({
             alt="FindyAI"
             width={logoSizes.full[size].width}
             height={logoSizes.full[size].height}
-            className={cn(sizeClasses[size].full, "transition-opacity hover:opacity-80")}
+            className={cn(sizeClasses[size].full, "transition-all duration-300 hover:opacity-80 object-contain")}
             priority
           />
         )
@@ -91,23 +91,23 @@ export function Logo({
             alt="FindyAI"
             width={logoSizes.icon[size].width}
             height={logoSizes.icon[size].height}
-            className={cn(sizeClasses[size].icon, "transition-opacity hover:opacity-80")}
+            className={cn(sizeClasses[size].icon, "transition-all duration-300 hover:opacity-80 object-contain")}
             priority
           />
         )
       
       case 'icon-text':
         return (
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 transition-all duration-300">
             <Image
               src={logoFiles.icon[size]}
               alt="FindyAI"
               width={logoSizes.icon[size].width}
               height={logoSizes.icon[size].height}
-              className={cn(sizeClasses[size].icon, "transition-opacity hover:opacity-80")}
+              className={cn(sizeClasses[size].icon, "transition-all duration-300 hover:opacity-80 object-contain")}
               priority
             />
-            <div>
+            <div className="transition-all duration-300">
               <span className={cn(sizeClasses[size].text, "tracking-tight text-foreground")}>
                 FindyAI
               </span>

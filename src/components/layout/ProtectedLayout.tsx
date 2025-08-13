@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { Sidebar } from './Sidebar'
 import { LoadingIndicator } from '@/components/ui/loading-indicator'
-import { Logo } from '@/components/ui/logo'
 
 interface ProtectedLayoutProps {
   children: React.ReactNode
@@ -39,18 +38,6 @@ export function ProtectedLayout({ children, className }: ProtectedLayoutProps) {
     <div className="flex h-screen bg-background">
       {/* 側邊欄 */}
       <Sidebar />
-      
-      {/* 行動版固定 Header - 只在行動版顯示 */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-background/90 backdrop-blur-xl border-b border-border/50 z-40 flex items-center justify-between px-4">
-        <Logo 
-          variant="icon" 
-          size="sm" 
-          className="opacity-80 hover:opacity-100 transition-opacity"
-        />
-        <div className="text-sm text-muted-foreground">
-          FindyAI 2.0
-        </div>
-      </div>
       
       {/* 主內容區域 */}
       <div className="flex-1 flex flex-col overflow-hidden">

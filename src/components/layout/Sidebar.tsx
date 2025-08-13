@@ -122,44 +122,44 @@ export function Sidebar({ className }: SidebarProps) {
 
       {/* 桌面版側邊欄 - 始終顯示 */}
       <div className={cn(
-        "hidden md:flex md:relative flex-col h-full bg-sidebar/90 backdrop-blur-xl border-r border-sidebar-border/50 transition-all duration-300",
-        isCollapsed ? "md:w-16" : "md:w-64",
+        "hidden md:flex md:relative flex-col h-full bg-sidebar/90 backdrop-blur-xl border-r border-sidebar-border/50 transition-all duration-300 ease-in-out",
+        isCollapsed ? "md:w-20" : "md:w-64",
         className
       )}>
         {/* Header - 桌面版 */}
-        <div className="flex items-center justify-between p-6 border-b border-sidebar-border/30">
+        <div className={cn(
+          "flex items-center border-b border-sidebar-border/30 transition-all duration-300",
+          isCollapsed ? "justify-center p-4" : "justify-between p-6"
+        )}>
           {/* 桌面模式 logo 顯示 */}
-          <div className="flex items-center justify-center flex-1">
-            {!isCollapsed ? (
-              <Logo variant="full" size="md" className="h-8" />
-            ) : (
-              <div className="flex items-center justify-between w-full">
-                <Logo variant="icon" size="sm" className="h-6" />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsCollapsed(false)}
-                  className="h-8 w-8 rounded-lg hover:bg-sidebar-accent/50"
-                >
-                  <Menu className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
+          <div className={cn(
+            "flex items-center transition-all duration-300",
+            isCollapsed ? "justify-center flex-1" : "flex-1"
+          )}>
+            <Logo 
+              variant={isCollapsed ? "icon" : "full"} 
+              size={isCollapsed ? "sm" : "md"} 
+              className={cn(
+                "transition-all duration-300",
+                isCollapsed ? "h-7 w-7 cursor-pointer hover:opacity-70" : "h-8"
+              )}
+              onClick={isCollapsed ? () => setIsCollapsed(false) : undefined}
+              clickable={false}
+            />
           </div>
           
-          {/* 桌面模式折疊按鈕 */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="h-8 w-8 rounded-lg hover:bg-sidebar-accent/50"
-          >
-            {!isCollapsed ? (
+          {/* 桌面模式折疊按鈕 - 統一控制 */}
+          {!isCollapsed && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="h-10 w-10 rounded-lg hover:bg-sidebar-accent/50 transition-all duration-200 focus:ring-2 focus:ring-primary/20 ml-3"
+              aria-label="收合側邊欄"
+            >
               <X className="h-4 w-4" />
-            ) : (
-              <Menu className="h-4 w-4" />
-            )}
-          </Button>
+            </Button>
+          )}
         </div>
 
         {/* Navigation - 桌面版 */}
