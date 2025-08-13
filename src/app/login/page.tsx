@@ -2,12 +2,12 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { AlertCircle } from 'lucide-react'
+import { Logo } from '@/components/ui/logo'
 
 // 將使用 useSearchParams 的邏輯分離到單獨的組件
 function LoginContent() {
@@ -64,12 +64,10 @@ function LoginContent() {
     <div className="min-h-screen bg-background relative">
       {/* 左上角 logo */}
       <div className="absolute top-4 left-4 md:top-6 md:left-6 z-10">
-        <Image 
-          src="/logos/findyai-logo-small.png" 
-          alt="FindyAI" 
-          width={150}
-          height={45}
-          className="h-5 sm:h-6 md:h-8 w-auto opacity-60 hover:opacity-100 transition-opacity mobile-logo-small"
+        <Logo 
+          variant="full" 
+          size="sm" 
+          className="h-5 sm:h-6 md:h-8 opacity-60 hover:opacity-100 transition-opacity"
         />
       </div>
       
@@ -78,13 +76,11 @@ function LoginContent() {
         {/* 標題區域 */}
         <div className="text-center space-y-3 md:space-y-4">
           <div className="flex items-center justify-center">
-            <Image 
-              src="/logos/findyai-logo-medium.png" 
-              alt="FindyAI" 
-              width={300}
-              height={90}
-              className="h-10 sm:h-12 md:h-16 lg:h-20 w-auto mobile-logo-medium"
-              priority
+            <Logo 
+              variant="full" 
+              size="lg" 
+              className="h-10 sm:h-12 md:h-16 lg:h-20"
+              clickable={false}
             />
           </div>
           <p className="text-muted-foreground leading-relaxed max-w-sm mx-auto text-sm md:text-base px-2 md:px-0">

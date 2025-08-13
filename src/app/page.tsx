@@ -9,7 +9,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { LoadingIndicator } from '@/components/ui/loading-indicator'
 import { 
-  TrendingUp, 
   Sparkles, 
   Target, 
   Bell, 
@@ -18,6 +17,7 @@ import {
   Zap,
   BarChart3
 } from 'lucide-react'
+import { Logo } from '@/components/ui/logo'
 
 export default function HomePage() {
   const router = useRouter()
@@ -42,15 +42,11 @@ export default function HomePage() {
       <header className="border-b border-border/40 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-primary/10 rounded-xl">
-                <TrendingUp className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold tracking-tight">FindyAI</h1>
-                <p className="text-xs text-muted-foreground">2.0</p>
-              </div>
-            </div>
+            <Logo 
+              variant="icon-text" 
+              size="md" 
+              className="hover:opacity-80 transition-opacity"
+            />
             <div className="flex items-center space-x-3">
               <Link href="/login">
                 <Button variant="outline" className="rounded-xl">

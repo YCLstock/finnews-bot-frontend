@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
+import { Logo } from '@/components/ui/logo'
 import { 
   LayoutDashboard, 
   Settings, 
@@ -130,22 +131,10 @@ export function Sidebar({ className }: SidebarProps) {
           {/* 桌面模式 logo 顯示 */}
           <div className="flex items-center justify-center flex-1">
             {!isCollapsed ? (
-              <Image 
-                src="/logos/findyai-logo-small.png" 
-                alt="FindyAI" 
-                width={150}
-                height={45}
-                className="h-8 w-auto"
-              />
+              <Logo variant="full" size="md" className="h-8" />
             ) : (
               <div className="flex items-center justify-between w-full">
-                <Image 
-                  src="/logos/findyai-icon-32.png" 
-                  alt="FindyAI" 
-                  width={32}
-                  height={32}
-                  className="h-6 w-6"
-                />
+                <Logo variant="icon" size="sm" className="h-6" />
                 <Button
                   variant="ghost"
                   size="sm"
@@ -283,13 +272,7 @@ export function Sidebar({ className }: SidebarProps) {
           <div className="flex items-center justify-between p-6 border-b border-sidebar-border/30">
             {/* 手機版 logo 顯示 */}
             <div className="flex items-center justify-center flex-1">
-              <Image 
-                src="/logos/findyai-logo-medium.png" 
-                alt="FindyAI" 
-                width={300}
-                height={90}
-                className="h-8 sm:h-10 w-auto mobile-logo-medium"
-              />
+              <Logo variant="full" size="lg" className="h-8 sm:h-10" />
             </div>
             
             {/* 關閉按鈕 */}
