@@ -98,30 +98,26 @@ export function Sidebar({ className }: SidebarProps) {
         </Button>
       </div>
 
-      {/* 行動裝置遮罩 - 修復 z-index 和點擊問題 */}
+      {/* 行動裝置遮罩 - 修復覆蓋問題 */}
       {isMobileOpen && (
         <div 
-          className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          className="md:hidden fixed top-0 right-0 bottom-0 bg-black/50 backdrop-blur-sm z-40"
           onClick={toggleMobileSidebar}
           aria-hidden="true"
+          style={{ left: '320px' }}
         />
       )}
 
-      {/* 側邊欄主體 */}
+      {/* 桌面版側邊欄 - 始終顯示 */}
       <div className={cn(
-        "flex flex-col h-full bg-sidebar/90 backdrop-blur-xl border-r border-sidebar-border/50",
-        // 桌面模式
-        "hidden md:flex md:relative transition-all duration-300",
+        "hidden md:flex md:relative flex-col h-full bg-sidebar/90 backdrop-blur-xl border-r border-sidebar-border/50 transition-all duration-300",
         isCollapsed ? "md:w-16" : "md:w-64",
-        // 手機版固定定位側邊欄
-        "fixed md:hidden top-0 left-0 bottom-0 w-80 z-50 transform transition-transform duration-300",
-        isMobileOpen ? "translate-x-0" : "-translate-x-full",
         className
       )}>
-        {/* Header */}
+        {/* Header - 桌面版 */}
         <div className="flex items-center justify-between p-6 border-b border-sidebar-border/30">
           {/* 桌面模式 logo 顯示 */}
-          <div className="hidden md:flex items-center justify-center flex-1">
+          <div className="flex items-center justify-center flex-1">
             {!isCollapsed ? (
               <Image 
                 src="/logos/findyai-logo-small.png" 
@@ -150,44 +146,23 @@ export function Sidebar({ className }: SidebarProps) {
               </div>
             )}
           </div>
-
-          {/* 手機版 logo 顯示 */}
-          <div className="flex md:hidden items-center justify-center flex-1">
-            <Image 
-              src="/logos/findyai-logo-medium.png" 
-              alt="FindyAI" 
-              width={300}
-              height={90}
-              className="h-8 sm:h-10 w-auto mobile-logo-medium"
-            />
-          </div>
           
-          {/* 桌面模式：折疊按鈕，行動裝置模式：關閉按鈕 */}
+          {/* 桌面模式折疊按鈕 */}
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => {
-              // 檢查是否為行動裝置（安全地處理 window）
-              const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-              if (isMobile) {
-                setIsMobileOpen(false)
-              } else {
-                setIsCollapsed(!isCollapsed)
-              }
-            }}
+            onClick={() => setIsCollapsed(!isCollapsed)}
             className="h-8 w-8 rounded-lg hover:bg-sidebar-accent/50"
           >
-            {/* 手機版顯示 X，桌機版根據狀態顯示 */}
-            <X className="h-4 w-4 block md:hidden" />
             {!isCollapsed ? (
-              <X className="h-4 w-4 hidden md:block" />
+              <X className="h-4 w-4" />
             ) : (
-              <Menu className="h-4 w-4 hidden md:block" />
+              <Menu className="h-4 w-4" />
             )}
           </Button>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation - 桌面版 */}
         <nav className="flex-1 p-4 space-y-1">
           {navigation.map((item) => {
             const isActive = pathname === item.href
@@ -197,18 +172,11 @@ export function Sidebar({ className }: SidebarProps) {
               <Link key={item.name} href={item.href}>
                 <div 
                   className={cn(
-                    "group flex items-center space-x-3 px-3 py-4 md:py-3 rounded-xl text-sm transition-all duration-200",
-                    "min-h-[48px] md:min-h-[auto]", // 行動裝置最小觸控高度
+                    "group flex items-center space-x-3 px-3 py-3 rounded-xl text-sm transition-all duration-200",
                     isActive 
                       ? "bg-primary/15 text-primary border border-primary/20 shadow-sm" 
                       : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:shadow-sm"
                   )}
-                  onClick={() => {
-                    // 行動裝置點擊導航項目後關閉側邊欄
-                    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-                      setIsMobileOpen(false)
-                    }
-                  }}
                 >
                   <div className={cn(
                     "flex-shrink-0 p-1.5 rounded-lg transition-colors",
@@ -216,7 +184,7 @@ export function Sidebar({ className }: SidebarProps) {
                     isCollapsed ? "mx-auto" : ""
                   )}>
                     <Icon className={cn(
-                      "h-5 w-5 md:h-4 md:w-4", // 行動裝置稍大圖示
+                      "h-4 w-4",
                       isActive ? "text-primary" : "text-sidebar-foreground"
                     )} />
                   </div>
@@ -224,14 +192,14 @@ export function Sidebar({ className }: SidebarProps) {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <span className={cn(
-                          "font-medium truncate text-base md:text-sm", // 行動裝置稍大字體
+                          "font-medium truncate text-sm",
                           isActive ? "text-primary" : "text-sidebar-foreground"
                         )}>
                           {item.name}
                         </span>
                       </div>
                       <p className={cn(
-                        "text-sm md:text-xs mt-0.5 truncate", // 行動裝置稍大描述文字
+                        "text-xs mt-0.5 truncate",
                         isActive ? "text-primary/70" : "text-muted-foreground"
                       )}>
                         {item.description}
@@ -244,35 +212,35 @@ export function Sidebar({ className }: SidebarProps) {
           })}
         </nav>
 
-        {/* User Info & Logout */}
+        {/* User Info & Logout - 桌面版 */}
         <div className="p-4 border-t border-sidebar-border/30">
           {!isCollapsed && user && (
-            <div className="mb-4 p-4 md:p-3 bg-sidebar-accent/30 rounded-xl border border-sidebar-border/20">
+            <div className="mb-4 p-3 bg-sidebar-accent/30 rounded-xl border border-sidebar-border/20">
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
                   {user.user_metadata?.avatar_url ? (
                     <Image
                       src={user.user_metadata.avatar_url}
                       alt="頭像"
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 md:h-8 md:w-8 rounded-full ring-2 ring-primary/20"
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 rounded-full ring-2 ring-primary/20"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement
                         target.style.display = 'none'
                       }}
                     />
                   ) : (
-                    <div className="h-10 w-10 md:h-8 md:w-8 bg-primary/20 rounded-full flex items-center justify-center ring-2 ring-primary/20">
-                      <User className="h-5 w-5 md:h-4 md:w-4 text-primary" />
+                    <div className="h-8 w-8 bg-primary/20 rounded-full flex items-center justify-center ring-2 ring-primary/20">
+                      <User className="h-4 w-4 text-primary" />
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-base md:text-sm font-medium text-sidebar-foreground truncate">
+                  <p className="text-sm font-medium text-sidebar-foreground truncate">
                     {user.user_metadata?.full_name || user.email}
                   </p>
-                  <p className="text-sm md:text-xs text-muted-foreground truncate">
+                  <p className="text-xs text-muted-foreground truncate">
                     {user.email}
                   </p>
                 </div>
@@ -284,15 +252,145 @@ export function Sidebar({ className }: SidebarProps) {
             onClick={handleSignOut}
             variant="outline"
             className={cn(
-              "w-full h-12 md:h-10 rounded-xl border-sidebar-border/50 hover:bg-sidebar-accent/50 hover:border-sidebar-border transition-all duration-200",
-              isCollapsed ? "px-2" : "justify-start text-base md:text-sm"
+              "w-full h-10 rounded-xl border-sidebar-border/50 hover:bg-sidebar-accent/50 hover:border-sidebar-border transition-all duration-200",
+              isCollapsed ? "px-2" : "justify-start text-sm"
             )}
           >
-            <LogOut className={cn("h-5 w-5 md:h-4 md:w-4", isCollapsed ? "" : "mr-2")} />
+            <LogOut className={cn("h-4 w-4", isCollapsed ? "" : "mr-2")} />
             {!isCollapsed && "登出"}
           </Button>
         </div>
       </div>
+
+      {/* 行動版側邊欄 - 條件顯示 */}
+      {isMobileOpen && (
+        <div className={cn(
+          "md:hidden fixed top-0 left-0 bottom-0 w-80 z-50 flex flex-col h-full bg-sidebar/90 backdrop-blur-xl border-r border-sidebar-border/50",
+          className
+        )}>
+          {/* Header - 行動版 */}
+          <div className="flex items-center justify-between p-6 border-b border-sidebar-border/30">
+            {/* 手機版 logo 顯示 */}
+            <div className="flex items-center justify-center flex-1">
+              <Image 
+                src="/logos/findyai-logo-medium.png" 
+                alt="FindyAI" 
+                width={300}
+                height={90}
+                className="h-8 sm:h-10 w-auto mobile-logo-medium"
+              />
+            </div>
+            
+            {/* 關閉按鈕 */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleMobileSidebar}
+              className="h-8 w-8 rounded-lg hover:bg-sidebar-accent/50"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Navigation - 行動版 */}
+          <nav className="flex-1 p-4 space-y-1">
+            {navigation.map((item) => {
+              const isActive = pathname === item.href
+              const Icon = item.icon
+              
+              return (
+                <Link key={item.name} href={item.href}>
+                  <div 
+                    className={cn(
+                      "group flex items-center space-x-3 px-3 py-4 rounded-xl text-sm transition-all duration-200",
+                      "min-h-[48px]", // 行動裝置最小觸控高度
+                      isActive 
+                        ? "bg-primary/15 text-primary border border-primary/20 shadow-sm" 
+                        : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:shadow-sm"
+                    )}
+                    onClick={() => {
+                      // 行動裝置點擊導航項目後關閉側邊欄
+                      setIsMobileOpen(false)
+                    }}
+                  >
+                    <div className={cn(
+                      "flex-shrink-0 p-1.5 rounded-lg transition-colors",
+                      isActive ? "bg-primary/20" : "group-hover:bg-sidebar-accent/50"
+                    )}>
+                      <Icon className={cn(
+                        "h-5 w-5", // 行動裝置稍大圖示
+                        isActive ? "text-primary" : "text-sidebar-foreground"
+                      )} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className={cn(
+                          "font-medium truncate text-base", // 行動裝置稍大字體
+                          isActive ? "text-primary" : "text-sidebar-foreground"
+                        )}>
+                          {item.name}
+                        </span>
+                      </div>
+                      <p className={cn(
+                        "text-sm mt-0.5 truncate", // 行動裝置稍大描述文字
+                        isActive ? "text-primary/70" : "text-muted-foreground"
+                      )}>
+                        {item.description}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
+          </nav>
+
+          {/* User Info & Logout - 行動版 */}
+          <div className="p-4 border-t border-sidebar-border/30">
+            {user && (
+              <div className="mb-4 p-4 bg-sidebar-accent/30 rounded-xl border border-sidebar-border/20">
+                <div className="flex items-center space-x-3">
+                  <div className="flex-shrink-0">
+                    {user.user_metadata?.avatar_url ? (
+                      <Image
+                        src={user.user_metadata.avatar_url}
+                        alt="頭像"
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 rounded-full ring-2 ring-primary/20"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.style.display = 'none'
+                        }}
+                      />
+                    ) : (
+                      <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center ring-2 ring-primary/20">
+                        <User className="h-5 w-5 text-primary" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-base font-medium text-sidebar-foreground truncate">
+                      {user.user_metadata?.full_name || user.email}
+                    </p>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {user.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <Button
+              onClick={handleSignOut}
+              variant="outline"
+              className="w-full h-12 rounded-xl border-sidebar-border/50 hover:bg-sidebar-accent/50 hover:border-sidebar-border transition-all duration-200 justify-start text-base"
+            >
+              <LogOut className="h-5 w-5 mr-2" />
+              登出
+            </Button>
+          </div>
+        </div>
+      )}
     </>
   )
 } 

@@ -328,11 +328,16 @@
       position: fixed;
       top: 1rem;
       left: 1rem;
-      z-index: 30; /* z-fixed */
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(8px);
+      z-index: 60; /* 最高層級，確保始終可點擊 */
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
       border: 1px solid hsl(var(--border));
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+    
+    .dark .mobile-hamburger {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid hsl(var(--border));
     }
   }
 }
