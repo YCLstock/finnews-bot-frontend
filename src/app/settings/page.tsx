@@ -18,8 +18,7 @@ import {
   RefreshCw,
   CheckCircle,
   Clock,
-  AlertTriangle,
-  Sparkles
+  AlertTriangle
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -389,11 +388,11 @@ export default function SettingsPage() {
 
           {/* 個人化設定頁簽 */}
           <TabsContent value="personalization" className="space-y-6 mt-6">
-            <Card>
+            <Card className="border border-border/50 bg-card shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <div className="p-2 bg-primary/10 rounded-lg mr-3">
-                    <Sparkles className="h-5 w-5 text-primary" />
+                    <Settings className="h-5 w-5 text-primary" />
                   </div>
                   AI 個人化優化
                 </CardTitle>
@@ -404,28 +403,28 @@ export default function SettingsPage() {
               <CardContent className="space-y-6">
                 {hasSubscription ? (
                   <div className="space-y-4">
-                    <div className="p-4 bg-accent/10 rounded-xl border border-border/30">
+                    <div className="p-4 bg-accent/5 rounded-xl border border-border/30">
                       <h4 className="font-medium mb-2">建議進行優化</h4>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        系統檢測到您的設定可以進一步優化，透過引導流程來改善推送精準度。
+                      <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                        系統檢測到您的設定可以進一步優化，透過引導流程來改善推送精準度
                       </p>
-                      <Button onClick={handleStartOptimization} className="rounded-xl">
+                      <Button onClick={handleStartOptimization} className="rounded-xl shadow-sm hover:shadow-md transition-all">
                         <Target className="h-4 w-4 mr-2" />
-                        開始個人化優化
+                        開始優化設定
                       </Button>
                     </div>
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <div className="p-3 bg-accent/10 rounded-2xl inline-flex mb-4">
-                      <CheckCircle className="h-6 w-6 text-green-600" />
+                    <div className="p-3 bg-primary/10 rounded-xl inline-flex mb-4">
+                      <CheckCircle className="h-6 w-6 text-primary" />
                     </div>
                     <h4 className="font-medium mb-2">設定已優化</h4>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      您的個人化設定目前狀態良好，無需額外優化。
+                    <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                      您的個人化設定目前狀態良好，無需額外優化
                     </p>
                     <Button onClick={handleStartOptimization} variant="outline" className="rounded-xl">
-                      <Sparkles className="h-4 w-4 mr-2" />
+                      <Settings className="h-4 w-4 mr-2" />
                       重新優化設定
                     </Button>
                   </div>

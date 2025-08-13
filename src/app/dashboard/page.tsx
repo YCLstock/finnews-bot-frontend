@@ -21,8 +21,8 @@ import {
   Activity,
   ExternalLink,
   RefreshCw,
-  Sparkles,
-  Zap
+  Target,
+  ArrowRight
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
@@ -200,66 +200,63 @@ export default function DashboardPage() {
         {/* 訂閱狀態區域 */}
         {!hasSubscription ? (
           <>
-            {/* 首次用戶引導 - 增強版 */}
-            <div className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-primary/8 to-primary/5 border border-primary/20 rounded-2xl p-4 md:p-6 mb-6">
-              {/* 背景裝飾 */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16"></div>
-              
-              <div className="relative">
+            {/* 新用戶引導 - 簡潔版 */}
+            <Card className="border border-border/50 bg-card shadow-sm">
+              <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-6">
-                  <div className="flex items-center space-x-3 md:space-x-0 md:flex-col md:text-center">
-                    <div className="p-3 bg-primary/20 rounded-2xl flex-shrink-0 shadow-lg">
-                      <Sparkles className="h-6 w-6 text-primary" />
+                  <div className="flex items-center md:items-start space-x-3 md:flex-col md:space-x-0 md:text-center flex-shrink-0">
+                    <div className="p-3 bg-primary/10 rounded-xl">
+                      <Target className="h-6 w-6 text-primary" />
                     </div>
-                    <div className="md:mt-2">
-                      <h4 className="font-bold text-primary text-lg">🎉 歡迎！</h4>
-                      <p className="text-xs text-primary/80 hidden md:block">讓我們開始</p>
+                    <div className="md:mt-3">
+                      <h4 className="font-semibold text-foreground text-base">歡迎使用 FindyAI</h4>
+                      <p className="text-sm text-muted-foreground mt-1">設定個人化推送</p>
                     </div>
                   </div>
                   
                   <div className="flex-1">
-                    <div className="mb-4">
+                    <div className="mb-6">
                       <h3 className="text-lg md:text-xl font-semibold text-foreground mb-2">
-                        開始您的智能財經之旅
+                        設定您的新聞推送
                       </h3>
-                      <p className="text-sm text-muted-foreground">
-                        只需 3 個簡單步驟，30 秒完成設定，立即接收 AI 精選的財經新聞摘要
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        選擇關注的主題和推送方式，AI 將為您精選最重要的財經資訊
                       </p>
                     </div>
                     
-                    <div className="grid gap-3 mb-4">
-                      <div className="flex items-center space-x-3 p-3 bg-background/60 backdrop-blur-sm rounded-xl border border-border/30">
-                        <div className="w-7 h-7 bg-primary/20 rounded-full flex items-center justify-center text-xs font-bold text-primary shadow-sm">1</div>
+                    <div className="grid gap-3 mb-6">
+                      <div className="flex items-center space-x-3 p-3 bg-accent/5 rounded-xl border border-border/30">
+                        <div className="w-6 h-6 bg-primary/15 rounded-full flex items-center justify-center text-xs font-medium text-primary">1</div>
                         <div>
-                          <span className="font-medium text-sm">選擇關注主題</span>
-                          <p className="text-xs text-muted-foreground">台積電、美股、加密貨幣等</p>
+                          <span className="font-medium text-sm text-foreground">選擇關注主題</span>
+                          <p className="text-xs text-muted-foreground mt-0.5">台積電、美股、加密貨幣等</p>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-3 p-3 bg-background/60 backdrop-blur-sm rounded-xl border border-border/30">
-                        <div className="w-7 h-7 bg-primary/20 rounded-full flex items-center justify-center text-xs font-bold text-primary shadow-sm">2</div>
+                      <div className="flex items-center space-x-3 p-3 bg-accent/5 rounded-xl border border-border/30">
+                        <div className="w-6 h-6 bg-primary/15 rounded-full flex items-center justify-center text-xs font-medium text-primary">2</div>
                         <div>
-                          <span className="font-medium text-sm">選擇推送方式</span>
-                          <p className="text-xs text-muted-foreground">Email 或 Discord 即時通知</p>
+                          <span className="font-medium text-sm text-foreground">選擇推送方式</span>
+                          <p className="text-xs text-muted-foreground mt-0.5">Email 或 Discord 即時通知</p>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-3 p-3 bg-background/60 backdrop-blur-sm rounded-xl border border-border/30">
-                        <div className="w-7 h-7 bg-primary/20 rounded-full flex items-center justify-center text-xs font-bold text-primary shadow-sm">3</div>
+                      <div className="flex items-center space-x-3 p-3 bg-accent/5 rounded-xl border border-border/30">
+                        <div className="w-6 h-6 bg-primary/15 rounded-full flex items-center justify-center text-xs font-medium text-primary">3</div>
                         <div>
-                          <span className="font-medium text-sm">每日接收摘要</span>
-                          <p className="text-xs text-muted-foreground">早上 8 點準時送達</p>
+                          <span className="font-medium text-sm text-foreground">每日接收摘要</span>
+                          <p className="text-xs text-muted-foreground mt-0.5">早上 8 點準時送達</p>
                         </div>
                       </div>
                     </div>
                     
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Link href="/quick-setup" className="flex-1">
-                        <Button size="lg" className="w-full rounded-xl h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                          <Zap className="h-5 w-5 mr-2" />
-                          快速設定 (30秒)
+                        <Button size="lg" className="w-full rounded-xl h-12 text-base font-medium shadow-sm hover:shadow-md transition-all">
+                          <ArrowRight className="h-4 w-4 mr-2" />
+                          快速設定
                         </Button>
                       </Link>
                       <Link href="/settings" className="sm:w-auto">
-                        <Button variant="outline" size="lg" className="w-full sm:w-auto rounded-xl h-12 px-6 text-base backdrop-blur-sm">
+                        <Button variant="outline" size="lg" className="w-full sm:w-auto rounded-xl h-12 px-6 text-base">
                           <Settings className="h-4 w-4 mr-2" />
                           詳細設定
                         </Button>
@@ -267,36 +264,9 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <Card className="border-dashed border-2 border-border/50 bg-accent/10">
-              <CardContent className="flex flex-col items-center justify-center py-12 md:py-16 px-4 md:px-8">
-                <div className="p-3 md:p-4 bg-primary/10 rounded-3xl mb-4 md:mb-6">
-                  <TrendingUp className="h-10 w-10 md:h-12 md:w-12 text-primary" />
-                </div>
-                <h3 className="text-xl md:text-2xl font-medium mb-2 md:mb-3 text-center">
-                  開始您的智能財經之旅
-                </h3>
-                <p className="text-muted-foreground text-center mb-6 md:mb-8 max-w-md leading-relaxed text-sm md:text-base">
-                  透過 AI 智能篩選，為您推送最重要的財經資訊
-                </p>
-                <div className="mobile-button-group sm:flex-row">
-                  <Link href="/quick-setup" className="flex">
-                    <Button size="lg" className="rounded-xl h-12 px-6 text-base flex-1 shadow-lg hover:shadow-xl">
-                      <Zap className="h-5 w-5 mr-2" />
-                      快速設定 (30秒)
-                    </Button>
-                  </Link>
-                  <Link href="/settings" className="flex">
-                    <Button variant="outline" size="lg" className="rounded-xl h-12 px-6 text-base flex-1">
-                      <Settings className="h-5 w-5 mr-2" />
-                      詳細設定
-                    </Button>
-                  </Link>
-                </div>
               </CardContent>
             </Card>
+
           </>
         ) : (
           <>
