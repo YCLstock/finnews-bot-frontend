@@ -13,10 +13,13 @@ FindyAI Frontend is a Next.js 15 application that provides an AI-powered financi
 npm run dev          # Start development server on localhost:3000
 npm run build        # Build for production
 npm run start        # Start production server
-npm run lint         # Run ESLint
+npm run lint         # Run ESLint (ALWAYS run after making changes)
 
 # Environment setup
 cp env.example .env.local  # Copy environment template
+
+# Essential pre-commit checks
+npm run lint         # Must pass before committing
 ```
 
 ## Architecture & Key Patterns
@@ -61,6 +64,10 @@ The API client (`apiClient`) is organized into logical namespaces:
 - **Typography**: IBM Plex Sans + Inter fallback with optimized line heights
 - **Components**: Radix UI primitives with custom styling
 - **Styling**: Tailwind CSS v4 with CSS custom properties
+- **Logo System**: Unified Logo component supports 3 variants:
+  - `full`: Complete logo with text (long format)
+  - `icon`: Pure icon (square format) 
+  - `icon-text`: Icon + separate text combination
 
 ### Route Structure
 ```
@@ -105,3 +112,43 @@ All pages except `/login` require authentication. The `ProtectedLayout` componen
 
 ### Testing Backend Integration
 Use the cold start alert component (`<ColdStartAlert />`) during development to help users understand potential delays when connecting to Render.com deployments.
+
+## Component Development Guidelines
+
+### Logo Component Usage
+The unified `<Logo />` component should be used across all pages:
+- **Homepage**: Use `variant="icon-text"` for brand identity
+- **Login**: Use `variant="full"` for main logo display  
+- **Sidebar**: Use `variant="full"` when expanded, `variant="icon"` when collapsed
+- **Mobile**: Use `variant="icon"` for space-constrained areas
+
+### Sidebar Behavior
+- **Desktop**: Single fold/expand button (X to collapse, logo click to expand when collapsed)
+- **Mobile**: Hamburger menu with overlay, ESC key support for closing
+- **Logo transition**: Smooth animation between full ↔ icon variants
+- **Width**: `w-64` expanded, `w-20` collapsed (not w-16 - too narrow)
+
+### Responsive Design Patterns  
+- **Font scaling**: Conservative approach for 2xl breakpoint (text-xl, not text-2xl)
+- **Touch targets**: Minimum 44px height for mobile buttons
+- **Backdrop blur**: Consistent `backdrop-blur-sm` across all overlays
+- **Transitions**: Use `transition-all duration-300` for smooth UX
+
+## Critical Implementation Notes
+
+### Authentication Flow
+- Pages redirect based on auth status: `/` → `/dashboard` (authenticated), `/login` (not authenticated)
+- `ProtectedLayout` handles auth checks and provides sidebar to all authenticated pages
+- No duplicate headers - sidebar provides all navigation and branding
+
+### Logo Asset Management
+Available logo files in `/public/logos/`:
+- **Long format**: `findyai-logo-{small,medium,large}.png`
+- **Square format**: `findyai-icon-{32,64,128}.png`
+- Logo component automatically selects appropriate asset based on variant and size
+
+### CSS Architecture
+- Custom design tokens in `globals.css` with OKLCH color space
+- Responsive typography with mobile-first approach
+- Tailwind v4 with CSS custom properties for theme variables
+- Mobile typography locked to 16px minimum to prevent zoom

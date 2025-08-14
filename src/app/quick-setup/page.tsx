@@ -172,7 +172,7 @@ export default function QuickSetupPage() {
         delivery_platform: selectedPlatform || 'email',
         delivery_target: deliveryTarget,
         keywords: selectedKeywords,
-        news_sources: ['all'],
+        news_sources: ['yahoo_finance'],
         summary_language: 'zh-TW',
         push_frequency_type: 'daily'
       }
@@ -498,7 +498,7 @@ export default function QuickSetupPage() {
                     <div className="space-y-1 text-xs text-muted-foreground">
                       <div>• 推送頻率：每日一次 (08:00)</div>
                       <div>• 摘要語言：繁體中文</div>
-                      <div>• 新聞來源：全部來源</div>
+                      <div>• 新聞來源：Yahoo Finance</div>
                       <div>• 已選關鍵字：{selectedKeywords.length} 個</div>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">
@@ -529,6 +529,10 @@ export default function QuickSetupPage() {
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">關鍵字：</span>
                         <span className="font-medium">{selectedKeywords.length} 個</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">新聞來源：</span>
+                        <span className="font-medium">Yahoo Finance</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">推送平台：</span>

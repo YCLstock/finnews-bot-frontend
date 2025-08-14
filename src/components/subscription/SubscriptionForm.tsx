@@ -23,12 +23,12 @@ interface SubscriptionFormProps {
 
 // 支援的新聞來源選項
 const NEWS_SOURCES = [
-  { value: 'yahoo_tw', label: 'Yahoo奇摩財經' },
-  { value: 'moneydj', label: 'MoneyDJ理財網' },
-  { value: 'cnyes', label: '鉅亨網' },
-  { value: 'chinatimes', label: '中時新聞網' },
-  { value: 'udn', label: '聯合新聞網' },
-  { value: 'all', label: '全部來源' }
+  { value: 'yahoo_finance', label: 'Yahoo Finance', supported: true },
+  { value: 'moneydj', label: 'MoneyDJ理財網', supported: false },
+  { value: 'cnyes', label: '鉅亨網', supported: false },
+  { value: 'chinatimes', label: '中時新聞網', supported: false },
+  { value: 'udn', label: '聯合新聞網', supported: false },
+  { value: 'all', label: '全部來源', supported: false }
 ]
 
 // 語言選項
@@ -161,6 +161,13 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
 
   // 處理新聞來源選擇
   const handleNewsSourceChange = (value: string) => {
+    // 檢查是否為支援的來源
+    const sourceConfig = NEWS_SOURCES.find(source => source.value === value)
+    if (!sourceConfig?.supported) {
+      toast.error('此新聞來源暫不支援，目前僅支援 Yahoo Finance')
+      return
+    }
+
     if (value === 'all') {
       setFormData(prev => ({
         ...prev,
@@ -389,34 +396,55 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
               </span>
             </div>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
-              {NEWS_SOURCES.map((source) => (
-                <div
-                  key={source.value}
-                  className={`p-3 md:p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-sm min-h-[56px] flex items-center ${
-                    formData.news_sources.includes(source.value)
-                      ? 'border-primary bg-primary/10 shadow-sm'
-                      : 'border-border hover:border-border/80 bg-background hover:bg-accent/10'
-                  }`}
-                  onClick={() => handleNewsSourceChange(source.value)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className={`text-sm font-medium ${
-                      formData.news_sources.includes(source.value) ? 'text-primary' : 'text-foreground'
-                    }`}>
-                      {source.label}
-                    </span>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                      formData.news_sources.includes(source.value)
-                        ? 'border-primary bg-primary'
-                        : 'border-border'
-                    }`}>
-                      {formData.news_sources.includes(source.value) && (
-                        <div className="w-2 h-2 bg-primary-foreground rounded-full"></div>
-                      )}
+              {NEWS_SOURCES.map((source) => {
+                const isSelected = formData.news_sources.includes(source.value)
+                const isSupported = source.supported
+                const isDisabled = !isSupported
+                
+                return (
+                  <div
+                    key={source.value}
+                    className={`p-3 md:p-4 border-2 rounded-xl transition-all duration-200 min-h-[56px] flex items-center ${
+                      isDisabled 
+                        ? 'border-border/40 bg-muted/20 cursor-not-allowed opacity-60'
+                        : isSelected
+                          ? 'border-primary bg-primary/10 shadow-sm cursor-pointer hover:shadow-sm'
+                          : 'border-border hover:border-border/80 bg-background hover:bg-accent/10 cursor-pointer hover:shadow-sm'
+                    }`}
+                    onClick={() => !isDisabled && handleNewsSourceChange(source.value)}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center space-x-2">
+                        <span className={`text-sm font-medium ${
+                          isDisabled 
+                            ? 'text-muted-foreground'
+                            : isSelected 
+                              ? 'text-primary' 
+                              : 'text-foreground'
+                        }`}>
+                          {source.label}
+                        </span>
+                        {!isSupported && (
+                          <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+                            即將推出
+                          </span>
+                        )}
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                        isDisabled
+                          ? 'border-border/40'
+                          : isSelected
+                            ? 'border-primary bg-primary'
+                            : 'border-border'
+                      }`}>
+                        {isSelected && isSupported && (
+                          <div className="w-2 h-2 bg-primary-foreground rounded-full"></div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
             {errors.news_sources && (
               <p className="text-sm text-red-500 flex items-center">
@@ -424,9 +452,16 @@ export function SubscriptionForm({ mode, onSuccess, onCancel }: SubscriptionForm
                 {errors.news_sources}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">
-              💡 選擇「全部來源」將監控所有支援的新聞網站
-            </p>
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
+              <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
+                📰 新聞來源說明
+              </p>
+              <div className="space-y-1 text-xs text-blue-700 dark:text-blue-300">
+                <p>• 目前支援：Yahoo Finance (財經新聞)</p>
+                <p>• 其他來源正在開發中，敬請期待</p>
+                <p>• Yahoo Finance 提供全球財經新聞與市場資訊</p>
+              </div>
+            </div>
           </div>
 
           {/* 摘要語言和推送頻率 */}
