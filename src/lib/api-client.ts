@@ -214,6 +214,24 @@ interface ClusteringAnalysisResponse {
   recommendations: string[]
 }
 
+import { getValidatedEnv } from './env-validation'
+import { rateLimitTracker, RateLimitError } from './rate-limit-handler'
+
+// 日誌輔助函數
+const isDevelopment = process.env.NODE_ENV === 'development'
+
+const logSafe = (message: string, ...args: unknown[]) => {
+  if (isDevelopment) {
+    console.log(message, ...args)
+  }
+}
+
+const logWarn = (message: string, ...args: unknown[]) => {
+  if (isDevelopment) {
+    console.warn(message, ...args)
+  }
+}
+
 // API 客戶端類別
 class ApiClient {
   private baseURL: string
@@ -225,18 +243,23 @@ class ApiClient {
   }
 
   constructor() {
-    this.baseURL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1`
+    try {
+      const env = getValidatedEnv()
+      this.baseURL = `${env.NEXT_PUBLIC_API_URL}/api/v1`
+    } catch (error) {
+      // 在開發環境中顯示詳細錯誤，生產環境使用預設值
+      if (isDevelopment) {
+        logWarn('環境變數驗證失敗，使用預設值:', error)
+      }
+      this.baseURL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1`
+    }
+    
     this.defaultHeaders = {
       'Content-Type': 'application/json'
     }
     
     // 檢測是否是 Render 部署環境
     this.isRenderDeployment = this.baseURL.includes('onrender.com')
-    
-    // 如果使用占位符值，顯示警告
-    if (!process.env.NEXT_PUBLIC_API_URL) {
-      console.warn('⚠️  使用預設 API URL (localhost:8000) - 請設置 NEXT_PUBLIC_API_URL 環境變數')
-    }
   }
 
   private isRenderDeployment: boolean
@@ -274,8 +297,8 @@ class ApiClient {
         lastError = error as Error
         
         if (error instanceof ApiError && this.isColdStartError(error)) {
-          console.log(`🔄 API 請求失敗 (嘗試 ${attempt}/${maxRetries})，可能是 Render 冷啟動，${delay}ms 後重試...`)
-          console.log(`ℹ️ 冷啟動通常需要 30-60 秒，請耐心等待...`)
+          logSafe(`🔄 API 請求失敗 (嘗試 ${attempt}/${maxRetries})，可能是 Render 冷啟動，${delay}ms 後重試...`)
+          logSafe(`ℹ️ 冷啟動通常需要 30-60 秒，請耐心等待...`)
           
           if (attempt < maxRetries) {
             await new Promise(resolve => setTimeout(resolve, delay))
@@ -297,6 +320,17 @@ class ApiClient {
     options: RequestInit = {},
     timeoutMs?: number
   ): Promise<T> {
+    // 檢查速率限制
+    const rateLimitCheck = rateLimitTracker.isRateLimited(endpoint)
+    if (rateLimitCheck.limited && rateLimitCheck.waitTime) {
+      const waitTimeDesc = rateLimitTracker.getWaitTimeDescription(rateLimitCheck.waitTime)
+      throw new RateLimitError(
+        `API 請求過於頻繁，請等待 ${waitTimeDesc} 後重試`,
+        rateLimitCheck.waitTime,
+        Date.now() + rateLimitCheck.waitTime
+      )
+    }
+    
     const url = `${this.baseURL}${endpoint}`
     
     // 決定使用的超時時間
@@ -313,18 +347,40 @@ class ApiClient {
     
     // 調試資訊
     const hasAuth = !!(config.headers as Record<string, string>)?.['Authorization']
-    console.log(`🚀 API Request: ${config.method || 'GET'} ${endpoint}, Auth: ${hasAuth ? '✅' : '❌'}, Timeout: ${timeout}ms`)
+    logSafe(`🚀 API Request: ${config.method || 'GET'} ${endpoint}, Auth: ${hasAuth ? '✅' : '❌'}, Timeout: ${timeout}ms`)
 
     const requestFn = async (): Promise<T> => {
       try {
         const response = await fetch(url, config)
         
+        // 解析並儲存速率限制信息
+        rateLimitTracker.parseRateLimitHeaders(response.headers, endpoint)
+        
         if (!response.ok) {
+          // 特殊處理 429 狀態碼（速率限制）
+          if (response.status === 429) {
+            const retryAfter = response.headers.get('retry-after')
+            const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : 60000 // 預設 1 分鐘
+            const waitTimeDesc = rateLimitTracker.getWaitTimeDescription(waitTime)
+            
+            throw new RateLimitError(
+              `API 請求過於頻繁，請等待 ${waitTimeDesc} 後重試`,
+              waitTime,
+              Date.now() + waitTime
+            )
+          }
+          
           const error = await response.json().catch(() => ({}))
+          
+          // 在生產環境中清理敏感錯誤信息
+          const errorMessage = isDevelopment 
+            ? (error.detail || `Request failed with status ${response.status}`)
+            : this.getProductionErrorMessage(response.status)
+            
           throw new ApiError(
-            error.detail || 'Request failed',
+            errorMessage,
             response.status,
-            error
+            isDevelopment ? error : undefined
           )
         }
 
@@ -340,10 +396,14 @@ class ApiClient {
         }
         
         // 網路錯誤或其他錯誤
+        const networkErrorMessage = isDevelopment
+          ? `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`
+          : '網路連線失敗，請檢查網路狀態'
+          
         throw new ApiError(
-          'Network error - please check your connection',
+          networkErrorMessage,
           0,
-          error
+          isDevelopment ? error : undefined
         )
       }
     }
@@ -387,15 +447,39 @@ class ApiClient {
     )
   }
 
+  // 生產環境安全錯誤信息
+  private getProductionErrorMessage(status: number): string {
+    switch (status) {
+      case 400:
+        return '請求格式錯誤，請檢查輸入資料'
+      case 401:
+        return '需要重新登入'
+      case 403:
+        return '權限不足'
+      case 404:
+        return '請求的資源不存在'
+      case 429:
+        return '請求過於頻繁，請稍後再試'
+      case 500:
+        return '伺服器暫時無法處理請求'
+      case 502:
+      case 503:
+      case 504:
+        return '服務暫時不可用，請稍後重試'
+      default:
+        return '請求失敗，請稍後重試'
+    }
+  }
+
   // 認證方法
   setAuthToken(token: string) {
     this.defaultHeaders['Authorization'] = `Bearer ${token}`
-    console.log('🔑 API Client: Auth token set, length:', token.length)
+    logSafe('🔑 API Client: Auth token set, length:', token.length)
   }
 
   clearAuthToken() {
     delete this.defaultHeaders['Authorization']
-    console.log('🚫 API Client: Auth token cleared')
+    logSafe('🚫 API Client: Auth token cleared')
   }
 
   // 訂閱管理 API
@@ -568,7 +652,7 @@ class ApiClient {
 
 // 導出 API 客戶端實例和類型
 export const apiClient = new ApiClient()
-export { ApiError }
+export { ApiError, RateLimitError }
 export type {
   SubscriptionCreateRequest,
   SubscriptionUpdateRequest,
